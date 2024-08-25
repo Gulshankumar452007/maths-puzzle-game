@@ -159,8 +159,21 @@
         let currentAnswer;
         let score = 0;
         let highScore = 0;
-        let timeLeft = 30;
+        let timeLeft;
         let timerInterval;
+
+        function setInitialTime() {
+            const difficulty = document.getElementById('difficulty').value;
+            if (difficulty === 'easy') {
+                timeLeft = 45;
+            } else if (difficulty === 'medium') {
+                timeLeft = 30;
+            } else if (difficulty === 'hard') {
+                timeLeft = 20;
+            }
+            document.getElementById('timer').textContent = `Time Left: ${timeLeft}s`;
+            updateProgressBar();
+        }
 
         function generatePuzzle() {
             const difficulty = document.getElementById('difficulty').value;
@@ -191,8 +204,7 @@
             } else if (operator === '*') {
                 currentAnswer = num1 * num2;
             } else if (operator === '/') {
-                // Ensure division results in an integer answer
-                num1 = num1 * num2; // Now num1 is always divisible by num2
+                num1 = num1 * num2;
                 currentAnswer = num1 / num2;
             }
 
@@ -236,14 +248,18 @@
         function updateTimer() {
             timeLeft--;
             document.getElementById('timer').textContent = `Time Left: ${timeLeft}s`;
-
-            const progressBar = document.getElementById('progress-bar');
-            progressBar.style.width = `${(timeLeft / 30) * 100}%`;
+            updateProgressBar();
 
             if (timeLeft <= 0) {
                 clearInterval(timerInterval);
                 endGame();
             }
+        }
+
+        function updateProgressBar() {
+            const initialTime = timeLeft > 30 ? 45 : (timeLeft > 20 ? 30 : 20);
+            const progressBar = document.getElementById('progress-bar');
+            progressBar.style.width = `${(timeLeft / initialTime) * 100}%`;
         }
 
         function startTimer() {
@@ -260,9 +276,8 @@
 
         function resetGame() {
             score = 0;
-            timeLeft = 30;
+            setInitialTime();
             updateScore();
-            document.getElementById('timer').textContent = `Time Left: ${timeLeft}s`;
             document.getElementById('submit-answer').disabled = false;
             document.getElementById('new-puzzle').disabled = false;
             clearInterval(timerInterval);
@@ -274,7 +289,8 @@
         document.getElementById('submit-answer').addEventListener('click', checkAnswer);
         document.getElementById('reset').addEventListener('click', resetGame);
 
-        // Start the game on page load
+        // Set initial time and start the game on page load
+        setInitialTime();
         resetGame();
     </script>
 </body>
