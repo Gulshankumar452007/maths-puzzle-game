@@ -81,6 +81,20 @@
         #feedback.incorrect {
             color: red;
         }
+
+        #score {
+            font-size: 18px;
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        #reset {
+            background-color: #f44336;
+        }
+
+        #reset:hover {
+            background-color: #e53935;
+        }
     </style>
 </head>
 <body>
@@ -96,13 +110,16 @@
                 <input type="number" id="answer" placeholder="Your answer">
                 <button id="submit-answer">Submit Answer</button>
                 <button id="new-puzzle">New Puzzle</button>
+                <button id="reset">Reset Game</button>
                 <div id="feedback"></div>
+                <div id="score">Score: 0</div>
             </div>
         </div>
     </main>
 
     <script>
         let currentAnswer;
+        let score = 0;
 
         function generatePuzzle() {
             const num1 = Math.floor(Math.random() * 10) + 1;
@@ -124,6 +141,8 @@
                 feedbackElement.textContent = 'Correct!';
                 feedbackElement.classList.add('correct');
                 feedbackElement.classList.remove('incorrect');
+                score++;
+                updateScore();
             } else {
                 feedbackElement.textContent = 'Incorrect. Try again!';
                 feedbackElement.classList.add('incorrect');
@@ -131,8 +150,19 @@
             }
         }
 
+        function updateScore() {
+            document.getElementById('score').textContent = `Score: ${score}`;
+        }
+
+        function resetGame() {
+            score = 0;
+            updateScore();
+            generatePuzzle();
+        }
+
         document.getElementById('new-puzzle').addEventListener('click', generatePuzzle);
         document.getElementById('submit-answer').addEventListener('click', checkAnswer);
+        document.getElementById('reset').addEventListener('click', resetGame);
 
         // Generate the first puzzle on page load
         generatePuzzle();
