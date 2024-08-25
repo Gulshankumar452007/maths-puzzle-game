@@ -91,7 +91,7 @@
             color: red;
         }
 
-        #score, #timer {
+        #score, #timer, #high-score {
             font-size: 18px;
             margin-top: 10px;
             text-align: center;
@@ -127,6 +127,7 @@
                 <button id="reset">Reset Game</button>
                 <div id="feedback"></div>
                 <div id="score">Score: 0</div>
+                <div id="high-score">High Score: 0</div>
                 <div id="timer">Time Left: 30s</div>
             </div>
         </div>
@@ -135,6 +136,7 @@
     <script>
         let currentAnswer;
         let score = 0;
+        let highScore = 0;
         let timeLeft = 30;
         let timerInterval;
 
@@ -195,6 +197,10 @@
 
         function updateScore() {
             document.getElementById('score').textContent = `Score: ${score}`;
+            if (score > highScore) {
+                highScore = score;
+                document.getElementById('high-score').textContent = `High Score: ${highScore}`;
+            }
         }
 
         function updateTimer() {
