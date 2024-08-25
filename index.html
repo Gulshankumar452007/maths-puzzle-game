@@ -219,6 +219,45 @@
         #daily-challenge-achievements {
             margin-top: 10px;
         }
+
+        #social-share {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        #social-share button {
+            background-color: #1DA1F2;
+            color: white;
+            padding: 10px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #social-share button.facebook {
+            background-color: #3b5998;
+        }
+
+        #game-history-container {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        #game-history-container h2 {
+            margin-bottom: 10px;
+        }
+
+        #game-history-list {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        #game-history-list li {
+            background-color: #e1e1e1;
+            margin-bottom: 5px;
+            padding: 5px;
+            border-radius: 5px;
+        }
     </style>
 </head>
 <body data-theme="light">
@@ -298,6 +337,16 @@
                     </ul>
                 </div>
             </div>
+            <div id="social-share">
+                <button id="share-twitter">Share on Twitter</button>
+                <button id="share-facebook" class="facebook">Share on Facebook</button>
+            </div>
+            <div id="game-history-container">
+                <h2>Game History</h2>
+                <ul id="game-history-list">
+                    <!-- Game history will be displayed here -->
+                </ul>
+            </div>
         </div>
     </main>
 
@@ -333,6 +382,7 @@
         let opponentFrozen = false;
         let dailyChallengeCompleted = JSON.parse(localStorage.getItem('dailyChallengeCompleted')) || false;
         let dailyChallengeDate = localStorage.getItem('dailyChallengeDate') || '';
+        let gameHistory = JSON.parse(localStorage.getItem('gameHistory')) || [];
 
         const achievementList = [
             { id: 1, name: 'Score 50 Points on Easy', achieved: false, difficulty: 'easy', check: () => score >= 50 && document.getElementById('difficulty').value === 'easy' },
@@ -567,6 +617,7 @@
             document.getElementById('get-hint').disabled = true;
             updateLeaderboard();
             checkAchievements();
+            saveGameHistory();
             hintUsedThisGame = false;
         }
 
@@ -780,6 +831,36 @@
             return streak >= days;
         }
 
+        function saveGameHistory() {
+            const today = new Date().toISOString().split('T')[0];
+            gameHistory.push({ date: today, score: score, mode: mode });
+            localStorage.setItem('gameHistory', JSON.stringify(gameHistory));
+            displayGameHistory();
+        }
+
+        function displayGameHistory() {
+            const gameHistoryList = document.getElementById('game-history-list');
+            gameHistoryList.innerHTML = '';
+            gameHistory.forEach(game => {
+                const listItem = document.createElement('li');
+                listItem.textContent = `Date: ${game.date}, Mode: ${game.mode}, Score: ${game.score}`;
+                gameHistoryList.appendChild(listItem);
+            });
+        }
+
+        function shareOnTwitter() {
+            const text = `I just scored ${score} points in the Math Puzzle Game! Can you beat my score?`;
+            const url = encodeURIComponent('https://example.com');
+            const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${url}`;
+            window.open(twitterUrl, '_blank');
+        }
+
+        function shareOnFacebook() {
+            const url = encodeURIComponent('https://example.com');
+            const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
+            window.open(facebookUrl, '_blank');
+        }
+
         document.getElementById('dark-mode-toggle').addEventListener('click', toggleDarkMode);
         document.getElementById('sound-toggle').addEventListener('click', toggleSound);
         document.getElementById('music-toggle').addEventListener('click', toggleMusic);
@@ -797,6 +878,8 @@
             applySettings();
             closeSettings();
         });
+        document.getElementById('share-twitter').addEventListener('click', shareOnTwitter);
+        document.getElementById('share-facebook').addEventListener('click', shareOnFacebook);
 
         // Initialize the game on page load
         window.onload = () => {
@@ -813,6 +896,7 @@
             displayAchievements();
             startDailyChallenge();
             updateDailyStats();
+            displayGameHistory();
         };
     </script>
 </body>
