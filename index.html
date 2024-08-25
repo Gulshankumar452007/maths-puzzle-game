@@ -82,7 +82,7 @@
             color: red;
         }
 
-        #score {
+        #score, #timer {
             font-size: 18px;
             margin-top: 10px;
             text-align: center;
@@ -113,6 +113,7 @@
                 <button id="reset">Reset Game</button>
                 <div id="feedback"></div>
                 <div id="score">Score: 0</div>
+                <div id="timer">Time Left: 30s</div>
             </div>
         </div>
     </main>
@@ -120,6 +121,8 @@
     <script>
         let currentAnswer;
         let score = 0;
+        let timeLeft = 30;
+        let timerInterval;
 
         function generatePuzzle() {
             const num1 = Math.floor(Math.random() * 10) + 1;
@@ -143,6 +146,7 @@
                 feedbackElement.classList.remove('incorrect');
                 score++;
                 updateScore();
+                generatePuzzle();
             } else {
                 feedbackElement.textContent = 'Incorrect. Try again!';
                 feedbackElement.classList.add('incorrect');
@@ -154,9 +158,37 @@
             document.getElementById('score').textContent = `Score: ${score}`;
         }
 
+        function updateTimer() {
+            timeLeft--;
+            document.getElementById('timer').textContent = `Time Left: ${timeLeft}s`;
+
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                endGame();
+            }
+        }
+
+        function startTimer() {
+            timerInterval = setInterval(updateTimer, 1000);
+        }
+
+        function endGame() {
+            document.getElementById('feedback').textContent = `Game Over! Your final score is ${score}.`;
+            document.getElementById('feedback').classList.remove('correct', 'incorrect');
+            document.getElementById('puzzle').textContent = '';
+            document.getElementById('submit-answer').disabled = true;
+            document.getElementById('new-puzzle').disabled = true;
+        }
+
         function resetGame() {
             score = 0;
+            timeLeft = 30;
             updateScore();
+            document.getElementById('timer').textContent = `Time Left: ${timeLeft}s`;
+            document.getElementById('submit-answer').disabled = false;
+            document.getElementById('new-puzzle').disabled = false;
+            clearInterval(timerInterval);
+            startTimer();
             generatePuzzle();
         }
 
@@ -164,8 +196,8 @@
         document.getElementById('submit-answer').addEventListener('click', checkAnswer);
         document.getElementById('reset').addEventListener('click', resetGame);
 
-        // Generate the first puzzle on page load
-        generatePuzzle();
+        // Start the game on page load
+        resetGame();
     </script>
 </body>
 </html>
