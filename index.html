@@ -37,7 +37,7 @@
         }
 
         #hint {
-            margin-bottom: 20px;
+            margin-bottom: 10px;
             font-size: 18px;
             text-align: center;
             color: #555;
@@ -113,7 +113,7 @@
             color: red;
         }
 
-        #score, #timer, #high-score {
+        #score, #timer, #high-score, #streak {
             font-size: 18px;
             margin-top: 5px;
             text-align: center;
@@ -162,6 +162,7 @@
                 <div id="feedback"></div>
                 <div id="score">Score: 0</div>
                 <div id="high-score">High Score: 0</div>
+                <div id="streak">Streak: 0</div>
                 <div id="timer">Time Left: 30s</div>
                 <div id="progress-bar-container">
                     <div id="progress-bar"></div>
@@ -179,6 +180,7 @@
         let currentOperator;
         let score = 0;
         let highScore = 0;
+        let streak = 0;
         let timeLeft;
         let timerInterval;
 
@@ -260,19 +262,27 @@
             const incorrectSound = document.getElementById('incorrect-sound');
 
             if (userAnswer === currentAnswer) {
-                feedbackElement.textContent = 'Correct!';
+                feedbackElement.textContent = `Correct! +${getBonusPoints()} points!`;
                 feedbackElement.classList.add('correct');
                 feedbackElement.classList.remove('incorrect');
-                score += 2;
+                streak++;
+                score += 2 + getBonusPoints();
                 correctSound.play();
                 updateScore();
+                updateStreak();
                 generatePuzzle();
             } else {
-                feedbackElement.textContent = 'Incorrect. Try again!';
+                feedbackElement.textContent = 'Incorrect. Streak reset!';
                 feedbackElement.classList.add('incorrect');
                 feedbackElement.classList.remove('correct');
+                streak = 0;
                 incorrectSound.play();
+                updateStreak();
             }
+        }
+
+        function getBonusPoints() {
+            return streak >= 3 ? Math.floor(streak / 3) : 0;
         }
 
         function updateScore() {
@@ -281,6 +291,10 @@
                 highScore = score;
                 document.getElementById('high-score').textContent = `High Score: ${highScore}`;
             }
+        }
+
+        function updateStreak() {
+            document.getElementById('streak').textContent = `Streak: ${streak}`;
         }
 
         function updateTimer() {
@@ -317,8 +331,10 @@
 
         function resetGame() {
             score = 0;
+            streak = 0;
             setInitialTime();
             updateScore();
+            updateStreak();
             document.getElementById('submit-answer').disabled = false;
             document.getElementById('new-puzzle').disabled = false;
             document.getElementById('get-hint').disabled = false;
