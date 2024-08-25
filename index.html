@@ -192,6 +192,25 @@
             margin-top: 10px;
             text-align: center;
         }
+
+        #power-ups {
+            margin-top: 10px;
+            display: flex;
+            justify-content: space-around;
+        }
+
+        #power-ups button {
+            padding: 10px;
+            font-size: 14px;
+            background-color: #f39c12;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #power-ups button:hover {
+            background-color: #e67e22;
+        }
     </style>
 </head>
 <body data-theme="light">
@@ -235,6 +254,11 @@
                 </div>
                 <div id="player-turn">Player 1's Turn</div>
                 <div id="player-scores">Player 1: 0 | Player 2: 0</div>
+                <div id="power-ups">
+                    <button id="double-points">Double Points</button>
+                    <button id="freeze-opponent">Freeze Opponent</button>
+                    <button id="extra-time">Extra Time</button>
+                </div>
                 <div id="leaderboard">
                     <h2>Leaderboard</h2>
                     <ol id="leaderboard-list">
@@ -273,6 +297,8 @@
         let mode = 'classic';
         let playerTurn = 1;
         let playerScores = [0, 0];
+        let powerUpActive = null;
+        let opponentFrozen = false;
 
         const achievementList = [
             { id: 1, name: 'Score 50 Points on Easy', achieved: false, difficulty: 'easy', check: () => score >= 50 && document.getElementById('difficulty').value === 'easy' },
@@ -373,11 +399,17 @@
             const incorrectSound = document.getElementById('incorrect-sound');
 
             if (userAnswer === currentAnswer) {
-                feedbackElement.textContent = `Correct! +${getBonusPoints()} points!`;
+                let pointsGained = 2 + getBonusPoints();
+                if (powerUpActive === 'double-points') {
+                    pointsGained *= 2;
+                    powerUpActive = null;
+                }
+
+                feedbackElement.textContent = `Correct! +${pointsGained} points!`;
                 feedbackElement.classList.add('correct');
                 feedbackElement.classList.remove('incorrect');
                 streak++;
-                score += 2 + getBonusPoints();
+                score += pointsGained;
                 if (soundEnabled) correctSound.play();
                 updateScore();
                 updateStreak();
@@ -385,9 +417,13 @@
                 generatePuzzle();
 
                 if (mode === 'multiplayer') {
-                    playerScores[playerTurn - 1] += 2 + getBonusPoints();
+                    playerScores[playerTurn - 1] += pointsGained;
                     updatePlayerScores();
-                    switchTurn();
+                    if (!opponentFrozen) {
+                        switchTurn();
+                    } else {
+                        opponentFrozen = false; // Opponent is unfrozen after one turn
+                    }
                 }
             } else {
                 feedbackElement.textContent = 'Incorrect. Streak reset!';
@@ -480,6 +516,8 @@
             streak = 0;
             playerScores = [0, 0];
             playerTurn = 1;
+            opponentFrozen = false;
+            powerUpActive = null;
             setInitialTime();
             updateScore();
             updateStreak();
@@ -573,6 +611,18 @@
             document.getElementById('player-turn').textContent = `Player ${playerTurn}'s Turn`;
         }
 
+        function activatePowerUp(powerUp) {
+            if (powerUp === 'double-points') {
+                powerUpActive = 'double-points';
+            } else if (powerUp === 'freeze-opponent') {
+                opponentFrozen = true;
+                switchTurn();
+            } else if (powerUp === 'extra-time') {
+                timeLeft += 10;
+                updateTimer();
+            }
+        }
+
         document.getElementById('dark-mode-toggle').addEventListener('click', toggleDarkMode);
         document.getElementById('sound-toggle').addEventListener('click', toggleSound);
         document.getElementById('music-toggle').addEventListener('click', toggleMusic);
@@ -584,6 +634,9 @@
         document.getElementById('classic-mode').addEventListener('click', () => switchMode('classic'));
         document.getElementById('timed-mode').addEventListener('click', () => switchMode('timed'));
         document.getElementById('multiplayer-mode').addEventListener('click', () => switchMode('multiplayer'));
+        document.getElementById('double-points').addEventListener('click', () => activatePowerUp('double-points'));
+        document.getElementById('freeze-opponent').addEventListener('click', () => activatePowerUp('freeze-opponent'));
+        document.getElementById('extra-time').addEventListener('click', () => activatePowerUp('extra-time'));
 
         // Initialize the game on page load
         window.onload = () => {
