@@ -27,18 +27,24 @@
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            width: 300px;
+            width: 350px;
         }
 
         #puzzle {
-            margin-bottom: 20px;
+            margin-bottom: 10px;
             font-size: 24px;
             text-align: center;
         }
 
+        #hint {
+            margin-bottom: 20px;
+            font-size: 18px;
+            text-align: center;
+            color: #555;
+        }
+
         #controls {
             display: flex;
-            justify-content: center;
             flex-direction: column;
             align-items: center;
         }
@@ -46,7 +52,7 @@
         input[type="number"] {
             padding: 10px;
             font-size: 16px;
-            width: 80%;
+            width: 90%;
             margin-bottom: 10px;
             border: 1px solid #ccc;
             border-radius: 5px;
@@ -55,7 +61,7 @@
         select {
             padding: 10px;
             font-size: 16px;
-            width: 80%;
+            width: 90%;
             margin-bottom: 10px;
             border: 1px solid #ccc;
             border-radius: 5px;
@@ -64,17 +70,33 @@
         button {
             background-color: #4CAF50;
             color: white;
-            padding: 10px 20px;
+            padding: 10px;
             border: none;
             border-radius: 5px;
             cursor: pointer;
             font-size: 16px;
-            margin-bottom: 10px;
-            width: 80%;
+            margin: 5px;
+            width: 90%;
         }
 
         button:hover {
             background-color: #45a049;
+        }
+
+        #get-hint {
+            background-color: #2196F3;
+        }
+
+        #get-hint:hover {
+            background-color: #1976D2;
+        }
+
+        #reset {
+            background-color: #f44336;
+        }
+
+        #reset:hover {
+            background-color: #e53935;
         }
 
         #feedback {
@@ -93,20 +115,12 @@
 
         #score, #timer, #high-score {
             font-size: 18px;
-            margin-top: 10px;
+            margin-top: 5px;
             text-align: center;
         }
 
-        #reset {
-            background-color: #f44336;
-        }
-
-        #reset:hover {
-            background-color: #e53935;
-        }
-
         #progress-bar-container {
-            width: 80%;
+            width: 90%;
             height: 20px;
             background-color: #ccc;
             border-radius: 10px;
@@ -131,14 +145,18 @@
             <div id="puzzle">
                 <!-- Puzzle will be dynamically generated here -->
             </div>
+            <div id="hint">
+                <!-- Hint will be displayed here -->
+            </div>
             <div id="controls">
                 <select id="difficulty">
                     <option value="easy">Easy</option>
-                    <option value="medium">Medium</option>
+                    <option value="medium" selected>Medium</option>
                     <option value="hard">Hard</option>
                 </select>
                 <input type="number" id="answer" placeholder="Your answer">
                 <button id="submit-answer">Submit Answer</button>
+                <button id="get-hint">Get Hint (-1 Point)</button>
                 <button id="new-puzzle">New Puzzle</button>
                 <button id="reset">Reset Game</button>
                 <div id="feedback"></div>
@@ -157,6 +175,8 @@
 
     <script>
         let currentAnswer;
+        let currentPuzzle;
+        let currentOperator;
         let score = 0;
         let highScore = 0;
         let timeLeft;
@@ -177,17 +197,17 @@
 
         function generatePuzzle() {
             const difficulty = document.getElementById('difficulty').value;
-            let num1, num2, operator;
+            let num1, num2;
             let min, max;
 
             if (difficulty === 'easy') {
                 min = 1;
                 max = 10;
             } else if (difficulty === 'medium') {
-                min = 1;
+                min = 10;
                 max = 50;
             } else {
-                min = 1;
+                min = 50;
                 max = 100;
             }
 
@@ -195,24 +215,42 @@
             num2 = Math.floor(Math.random() * (max - min + 1)) + min;
 
             const operations = ['+', '-', '*', '/'];
-            operator = operations[Math.floor(Math.random() * operations.length)];
+            currentOperator = operations[Math.floor(Math.random() * operations.length)];
 
-            if (operator === '+') {
+            if (currentOperator === '+') {
                 currentAnswer = num1 + num2;
-            } else if (operator === '-') {
+            } else if (currentOperator === '-') {
                 currentAnswer = num1 - num2;
-            } else if (operator === '*') {
+            } else if (currentOperator === '*') {
                 currentAnswer = num1 * num2;
-            } else if (operator === '/') {
-                num1 = num1 * num2;
-                currentAnswer = num1 / num2;
+            } else if (currentOperator === '/') {
+                currentAnswer = num1;
+                num1 = currentAnswer * num2;
             }
 
-            const puzzleElement = document.getElementById('puzzle');
-            puzzleElement.textContent = `What is ${num1} ${operator} ${num2}?`;
-
+            currentPuzzle = { num1, num2 };
+            document.getElementById('puzzle').textContent = `What is ${num1} ${currentOperator} ${num2}?`;
+            document.getElementById('hint').textContent = '';
             document.getElementById('feedback').textContent = '';
             document.getElementById('answer').value = '';
+        }
+
+        function provideHint() {
+            let hintMessage = '';
+            if (score > 0) {
+                score--;
+                updateScore();
+                if (currentOperator === '+' || currentOperator === '-') {
+                    hintMessage = `One of the numbers is ${currentPuzzle.num1}.`;
+                } else if (currentOperator === '*') {
+                    hintMessage = `The result is divisible by ${currentPuzzle.num1}.`;
+                } else if (currentOperator === '/') {
+                    hintMessage = `After division, the result is ${currentAnswer}.`;
+                }
+                document.getElementById('hint').textContent = hintMessage;
+            } else {
+                document.getElementById('hint').textContent = 'Not enough points for a hint!';
+            }
         }
 
         function checkAnswer() {
@@ -225,7 +263,7 @@
                 feedbackElement.textContent = 'Correct!';
                 feedbackElement.classList.add('correct');
                 feedbackElement.classList.remove('incorrect');
-                score++;
+                score += 2;
                 correctSound.play();
                 updateScore();
                 generatePuzzle();
@@ -257,7 +295,8 @@
         }
 
         function updateProgressBar() {
-            const initialTime = timeLeft > 30 ? 45 : (timeLeft > 20 ? 30 : 20);
+            const initialTime = document.getElementById('difficulty').value === 'easy' ? 45 :
+                                document.getElementById('difficulty').value === 'medium' ? 30 : 20;
             const progressBar = document.getElementById('progress-bar');
             progressBar.style.width = `${(timeLeft / initialTime) * 100}%`;
         }
@@ -270,8 +309,10 @@
             document.getElementById('feedback').textContent = `Game Over! Your final score is ${score}.`;
             document.getElementById('feedback').classList.remove('correct', 'incorrect');
             document.getElementById('puzzle').textContent = '';
+            document.getElementById('hint').textContent = '';
             document.getElementById('submit-answer').disabled = true;
             document.getElementById('new-puzzle').disabled = true;
+            document.getElementById('get-hint').disabled = true;
         }
 
         function resetGame() {
@@ -280,6 +321,7 @@
             updateScore();
             document.getElementById('submit-answer').disabled = false;
             document.getElementById('new-puzzle').disabled = false;
+            document.getElementById('get-hint').disabled = false;
             clearInterval(timerInterval);
             startTimer();
             generatePuzzle();
@@ -287,11 +329,12 @@
 
         document.getElementById('new-puzzle').addEventListener('click', generatePuzzle);
         document.getElementById('submit-answer').addEventListener('click', checkAnswer);
+        document.getElementById('get-hint').addEventListener('click', provideHint);
         document.getElementById('reset').addEventListener('click', resetGame);
+        document.getElementById('difficulty').addEventListener('change', resetGame);
 
-        // Set initial time and start the game on page load
-        setInitialTime();
-        resetGame();
+        // Initialize the game on page load
+        window.onload = resetGame;
     </script>
 </body>
 </html>
