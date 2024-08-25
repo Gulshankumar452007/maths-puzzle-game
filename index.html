@@ -247,9 +247,13 @@
         let musicEnabled = JSON.parse(localStorage.getItem('musicEnabled')) || false;
 
         const achievementList = [
-            { id: 1, name: 'Score 50 Points', achieved: false, check: () => score >= 50 },
-            { id: 2, name: 'High Streak of 10', achieved: false, check: () => streak >= 10 },
-            { id: 3, name: 'Finish a Game Without Hints', achieved: false, check: () => streak > 0 && score > 0 && !hintUsedThisGame }
+            { id: 1, name: 'Score 50 Points on Easy', achieved: false, difficulty: 'easy', check: () => score >= 50 && document.getElementById('difficulty').value === 'easy' },
+            { id: 2, name: 'High Streak of 10 on Easy', achieved: false, difficulty: 'easy', check: () => streak >= 10 && document.getElementById('difficulty').value === 'easy' },
+            { id: 3, name: 'Score 50 Points on Medium', achieved: false, difficulty: 'medium', check: () => score >= 50 && document.getElementById('difficulty').value === 'medium' },
+            { id: 4, name: 'High Streak of 10 on Medium', achieved: false, difficulty: 'medium', check: () => streak >= 10 && document.getElementById('difficulty').value === 'medium' },
+            { id: 5, name: 'Score 50 Points on Hard', achieved: false, difficulty: 'hard', check: () => score >= 50 && document.getElementById('difficulty').value === 'hard' },
+            { id: 6, name: 'High Streak of 10 on Hard', achieved: false, difficulty: 'hard', check: () => streak >= 10 && document.getElementById('difficulty').value === 'hard' },
+            { id: 7, name: 'Finish a Game Without Hints on Any Difficulty', achieved: false, check: () => streak > 0 && score > 0 && !hintUsedThisGame }
         ];
 
         let hintUsedThisGame = false;
