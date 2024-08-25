@@ -204,6 +204,21 @@
         #close-settings:hover {
             background-color: #c0392b;
         }
+
+        #daily-challenge-container {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        #daily-challenge-stats {
+            font-size: 16px;
+            margin-top: 10px;
+        }
+
+        #daily-challenge-achievements {
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body data-theme="light">
@@ -216,6 +231,7 @@
                 <button id="classic-mode">Classic Mode</button>
                 <button id="timed-mode">Timed Challenges</button>
                 <button id="multiplayer-mode">Multiplayer Mode</button>
+                <button id="daily-challenge-mode">Daily Challenge</button>
             </div>
             <div id="puzzle">
                 <!-- Puzzle will be dynamically generated here -->
@@ -270,6 +286,18 @@
                 <input type="range" id="music-volume" min="0" max="100">
                 <button id="close-settings">Close Settings</button>
             </div>
+            <div id="daily-challenge-container">
+                <h2>Daily Challenge</h2>
+                <div id="daily-challenge-stats">
+                    <!-- Daily challenge stats will be displayed here -->
+                </div>
+                <div id="daily-challenge-achievements">
+                    <h3>Daily Challenge Achievements</h3>
+                    <ul id="daily-challenge-achievement-list">
+                        <!-- Daily challenge achievements will be displayed here -->
+                    </ul>
+                </div>
+            </div>
         </div>
     </main>
 
@@ -288,7 +316,9 @@
         let timerInterval;
         let leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
         let timedLeaderboard = JSON.parse(localStorage.getItem('timedLeaderboard')) || [];
+        let dailyLeaderboard = JSON.parse(localStorage.getItem('dailyLeaderboard')) || [];
         let achievements = JSON.parse(localStorage.getItem('achievements')) || [];
+        let dailyAchievements = JSON.parse(localStorage.getItem('dailyAchievements')) || [];
         let theme = localStorage.getItem('theme') || 'light';
         let soundEnabled = JSON.parse(localStorage.getItem('soundEnabled')) || true;
         let musicEnabled = JSON.parse(localStorage.getItem('musicEnabled')) || false;
@@ -301,6 +331,8 @@
         let playerScores = [0, 0];
         let powerUpActive = null;
         let opponentFrozen = false;
+        let dailyChallengeCompleted = JSON.parse(localStorage.getItem('dailyChallengeCompleted')) || false;
+        let dailyChallengeDate = localStorage.getItem('dailyChallengeDate') || '';
 
         const achievementList = [
             { id: 1, name: 'Score 50 Points on Easy', achieved: false, difficulty: 'easy', check: () => score >= 50 && document.getElementById('difficulty').value === 'easy' },
@@ -312,6 +344,14 @@
             { id: 7, name: 'Finish a Game Without Hints on Any Difficulty', achieved: false, check: () => streak > 0 && score > 0 && !hintUsedThisGame },
             { id: 8, name: 'Score 100 Points in Timed Challenges', achieved: false, check: () => score >= 100 && mode === 'timed' },
             { id: 9, name: 'Solve 10 Puzzles in Timed Challenges', achieved: false, check: () => streak >= 10 && mode === 'timed' }
+        ];
+
+        const dailyAchievementList = [
+            { id: 1, name: 'Complete 1 Daily Challenge', achieved: false, check: () => dailyChallengeCompleted },
+            { id: 2, name: 'Complete 5 Daily Challenges', achieved: false, check: () => dailyAchievements.length >= 5 },
+            { id: 3, name: 'Complete 10 Daily Challenges', achieved: false, check: () => dailyAchievements.length >= 10 },
+            { id: 4, name: 'Complete a Daily Challenge Streak of 7 Days', achieved: false, check: () => checkDailyChallengeStreak(7) },
+            { id: 5, name: 'Complete a Daily Challenge Streak of 30 Days', achieved: false, check: () => checkDailyChallengeStreak(30) }
         ];
 
         let hintUsedThisGame = false;
@@ -328,6 +368,8 @@
                 }
             } else if (mode === 'timed') {
                 timeLeft = 60;
+            } else if (mode === 'daily') {
+                timeLeft = 90; // Daily challenges have 90 seconds
             } else {
                 timeLeft = 120; // Multiplayer mode has 2 minutes total for the game
             }
@@ -459,6 +501,9 @@
             } else if (mode === 'timed' && score > highScore) {
                 highScore = score;
                 document.getElementById('high-score').textContent = `High Score: ${highScore}`;
+            } else if (mode === 'daily' && score > highScore) {
+                highScore = score;
+                document.getElementById('high-score').textContent = `High Score: ${highScore}`;
             }
         }
 
@@ -485,7 +530,7 @@
             const initialTime = mode === 'classic' ? 
                 (document.getElementById('difficulty').value === 'easy' ? 45 :
                 document.getElementById('difficulty').value === 'medium' ? 30 : 20) :
-                (mode === 'timed' ? 60 : 120);
+                (mode === 'timed' ? 60 : mode === 'daily' ? 90 : 120);
             const progressBar = document.getElementById('progress-bar');
             progressBar.style.width = `${(timeLeft / initialTime) * 100}%`;
         }
@@ -505,6 +550,12 @@
                 } else {
                     endMessage = `Game Over! It's a tie at ${playerScores[0]} points each!`;
                 }
+            } else if (mode === 'daily') {
+                endMessage = `Daily Challenge Complete! Your final score is ${score}.`;
+                dailyChallengeCompleted = true;
+                localStorage.setItem('dailyChallengeCompleted', JSON.stringify(dailyChallengeCompleted));
+                updateDailyLeaderboard();
+                checkDailyAchievements();
             }
 
             document.getElementById('feedback').textContent = endMessage;
@@ -552,7 +603,21 @@
                 timedLeaderboard = timedLeaderboard.slice(0, 5);
                 localStorage.setItem('timedLeaderboard', JSON.stringify(timedLeaderboard));
                 displayLeaderboard(timedLeaderboard);
+            } else if (mode === 'daily') {
+                dailyLeaderboard.push(score);
+                dailyLeaderboard.sort((a, b) => b - a);
+                dailyLeaderboard = dailyLeaderboard.slice(0, 5);
+                localStorage.setItem('dailyLeaderboard', JSON.stringify(dailyLeaderboard));
+                displayLeaderboard(dailyLeaderboard);
             }
+        }
+
+        function updateDailyLeaderboard() {
+            dailyLeaderboard.push(score);
+            dailyLeaderboard.sort((a, b) => b - a);
+            dailyLeaderboard = dailyLeaderboard.slice(0, 5);
+            localStorage.setItem('dailyLeaderboard', JSON.stringify(dailyLeaderboard));
+            displayLeaderboard(dailyLeaderboard);
         }
 
         function displayLeaderboard(leaderboardArray) {
@@ -576,6 +641,17 @@
             displayAchievements();
         }
 
+        function checkDailyAchievements() {
+            dailyAchievementList.forEach(achievement => {
+                if (!achievement.achieved && achievement.check()) {
+                    achievement.achieved = true;
+                    dailyAchievements.push(achievement);
+                    localStorage.setItem('dailyAchievements', JSON.stringify(dailyAchievements));
+                }
+            });
+            displayDailyAchievements();
+        }
+
         function displayAchievements() {
             const achievementListElement = document.getElementById('achievement-list');
             achievementListElement.innerHTML = '';
@@ -583,6 +659,16 @@
                 const listItem = document.createElement('li');
                 listItem.textContent = `🏆 ${achievement.name}`;
                 achievementListElement.appendChild(listItem);
+            });
+        }
+
+        function displayDailyAchievements() {
+            const dailyAchievementListElement = document.getElementById('daily-challenge-achievement-list');
+            dailyAchievementListElement.innerHTML = '';
+            dailyAchievements.forEach(achievement => {
+                const listItem = document.createElement('li');
+                listItem.textContent = `🏆 ${achievement.name}`;
+                dailyAchievementListElement.appendChild(listItem);
             });
         }
 
@@ -613,6 +699,9 @@
         function switchMode(selectedMode) {
             mode = selectedMode;
             resetGame();
+            if (selectedMode === 'daily') {
+                startDailyChallenge();
+            }
         }
 
         function switchTurn() {
@@ -661,6 +750,36 @@
             localStorage.setItem('musicVolume', JSON.stringify(musicVolume));
         }
 
+        function startDailyChallenge() {
+            const today = new Date().toISOString().split('T')[0];
+            if (dailyChallengeDate !== today) {
+                dailyChallengeDate = today;
+                dailyChallengeCompleted = false;
+                localStorage.setItem('dailyChallengeDate', dailyChallengeDate);
+                localStorage.setItem('dailyChallengeCompleted', JSON.stringify(dailyChallengeCompleted));
+                resetGame();
+                updateDailyStats();
+            }
+        }
+
+        function updateDailyStats() {
+            const dailyChallengeStats = document.getElementById('daily-challenge-stats');
+            dailyChallengeStats.textContent = `Today's Challenge Date: ${dailyChallengeDate}`;
+            displayDailyAchievements();
+        }
+
+        function checkDailyChallengeStreak(days) {
+            const today = new Date();
+            const dates = dailyAchievements.map(achievement => new Date(achievement.date));
+            dates.sort((a, b) => b - a);
+            const streak = dates.reduce((acc, date, index, arr) => {
+                if (index === 0) return 1;
+                const diff = (arr[index - 1] - date) / (1000 * 60 * 60 * 24);
+                return diff === 1 ? acc + 1 : acc;
+            }, 1);
+            return streak >= days;
+        }
+
         document.getElementById('dark-mode-toggle').addEventListener('click', toggleDarkMode);
         document.getElementById('sound-toggle').addEventListener('click', toggleSound);
         document.getElementById('music-toggle').addEventListener('click', toggleMusic);
@@ -672,6 +791,7 @@
         document.getElementById('classic-mode').addEventListener('click', () => switchMode('classic'));
         document.getElementById('timed-mode').addEventListener('click', () => switchMode('timed'));
         document.getElementById('multiplayer-mode').addEventListener('click', () => switchMode('multiplayer'));
+        document.getElementById('daily-challenge-mode').addEventListener('click', () => switchMode('daily'));
         document.getElementById('settings-toggle').addEventListener('click', openSettings);
         document.getElementById('close-settings').addEventListener('click', () => {
             applySettings();
@@ -691,6 +811,8 @@
             resetGame();
             displayLeaderboard(leaderboard);
             displayAchievements();
+            startDailyChallenge();
+            updateDailyStats();
         };
     </script>
 </body>
