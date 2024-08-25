@@ -87,14 +87,14 @@
             background-color: var(--button-hover-background);
         }
 
-        #dark-mode-toggle {
+        #dark-mode-toggle, #sound-toggle, #music-toggle {
             background-color: #444;
             color: white;
             width: auto;
             margin-top: 10px;
         }
 
-        #dark-mode-toggle:hover {
+        #dark-mode-toggle:hover, #sound-toggle:hover, #music-toggle:hover {
             background-color: #555;
         }
 
@@ -201,6 +201,8 @@
                 <button id="new-puzzle">New Puzzle</button>
                 <button id="reset">Reset Game</button>
                 <button id="dark-mode-toggle">Toggle Dark Mode</button>
+                <button id="sound-toggle">Toggle Sound</button>
+                <button id="music-toggle">Toggle Music</button>
                 <div id="feedback"></div>
                 <div id="score">Score: 0</div>
                 <div id="high-score">High Score: 0</div>
@@ -227,6 +229,7 @@
 
     <audio id="correct-sound" src="https://www.soundjay.com/button/beep-07.wav"></audio>
     <audio id="incorrect-sound" src="https://www.soundjay.com/button/beep-10.wav"></audio>
+    <audio id="background-music" src="https://www.bensound.com/bensound-music/bensound-dreams.mp3" loop></audio>
 
     <script>
         let currentAnswer;
@@ -240,6 +243,8 @@
         let leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
         let achievements = JSON.parse(localStorage.getItem('achievements')) || [];
         let theme = localStorage.getItem('theme') || 'light';
+        let soundEnabled = JSON.parse(localStorage.getItem('soundEnabled')) || true;
+        let musicEnabled = JSON.parse(localStorage.getItem('musicEnabled')) || false;
 
         const achievementList = [
             { id: 1, name: 'Score 50 Points', achieved: false, check: () => score >= 50 },
@@ -333,7 +338,7 @@
                 feedbackElement.classList.remove('incorrect');
                 streak++;
                 score += 2 + getBonusPoints();
-                correctSound.play();
+                if (soundEnabled) correctSound.play();
                 updateScore();
                 updateStreak();
                 checkAchievements();
@@ -343,7 +348,7 @@
                 feedbackElement.classList.add('incorrect');
                 feedbackElement.classList.remove('correct');
                 streak = 0;
-                incorrectSound.play();
+                if (soundEnabled) incorrectSound.play();
                 updateStreak();
             }
         }
@@ -459,7 +464,25 @@
             theme = newTheme;
         }
 
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            localStorage.setItem('soundEnabled', JSON.stringify(soundEnabled));
+        }
+
+        function toggleMusic() {
+            musicEnabled = !musicEnabled;
+            const backgroundMusic = document.getElementById('background-music');
+            if (musicEnabled) {
+                backgroundMusic.play();
+            } else {
+                backgroundMusic.pause();
+            }
+            localStorage.setItem('musicEnabled', JSON.stringify(musicEnabled));
+        }
+
         document.getElementById('dark-mode-toggle').addEventListener('click', toggleDarkMode);
+        document.getElementById('sound-toggle').addEventListener('click', toggleSound);
+        document.getElementById('music-toggle').addEventListener('click', toggleMusic);
         document.getElementById('new-puzzle').addEventListener('click', generatePuzzle);
         document.getElementById('submit-answer').addEventListener('click', checkAnswer);
         document.getElementById('get-hint').addEventListener('click', provideHint);
@@ -469,6 +492,10 @@
         // Initialize the game on page load
         window.onload = () => {
             document.body.setAttribute('data-theme', theme);
+            const backgroundMusic = document.getElementById('background-music');
+            if (musicEnabled) {
+                backgroundMusic.play();
+            }
             resetGame();
             displayLeaderboard();
             displayAchievements();
