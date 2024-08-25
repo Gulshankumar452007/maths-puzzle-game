@@ -183,6 +183,10 @@
     </header>
     <main>
         <div id="game-container">
+            <div id="mode-selection">
+                <button id="classic-mode">Classic Mode</button>
+                <button id="timed-mode">Timed Challenges</button>
+            </div>
             <div id="puzzle">
                 <!-- Puzzle will be dynamically generated here -->
             </div>
@@ -241,10 +245,12 @@
         let timeLeft;
         let timerInterval;
         let leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
+        let timedLeaderboard = JSON.parse(localStorage.getItem('timedLeaderboard')) || [];
         let achievements = JSON.parse(localStorage.getItem('achievements')) || [];
         let theme = localStorage.getItem('theme') || 'light';
         let soundEnabled = JSON.parse(localStorage.getItem('soundEnabled')) || true;
         let musicEnabled = JSON.parse(localStorage.getItem('musicEnabled')) || false;
+        let mode = 'classic';
 
         const achievementList = [
             { id: 1, name: 'Score 50 Points on Easy', achieved: false, difficulty: 'easy', check: () => score >= 50 && document.getElementById('difficulty').value === 'easy' },
@@ -253,19 +259,25 @@
             { id: 4, name: 'High Streak of 10 on Medium', achieved: false, difficulty: 'medium', check: () => streak >= 10 && document.getElementById('difficulty').value === 'medium' },
             { id: 5, name: 'Score 50 Points on Hard', achieved: false, difficulty: 'hard', check: () => score >= 50 && document.getElementById('difficulty').value === 'hard' },
             { id: 6, name: 'High Streak of 10 on Hard', achieved: false, difficulty: 'hard', check: () => streak >= 10 && document.getElementById('difficulty').value === 'hard' },
-            { id: 7, name: 'Finish a Game Without Hints on Any Difficulty', achieved: false, check: () => streak > 0 && score > 0 && !hintUsedThisGame }
+            { id: 7, name: 'Finish a Game Without Hints on Any Difficulty', achieved: false, check: () => streak > 0 && score > 0 && !hintUsedThisGame },
+            { id: 8, name: 'Score 100 Points in Timed Challenges', achieved: false, check: () => score >= 100 && mode === 'timed' },
+            { id: 9, name: 'Solve 10 Puzzles in Timed Challenges', achieved: false, check: () => streak >= 10 && mode === 'timed' }
         ];
 
         let hintUsedThisGame = false;
 
         function setInitialTime() {
-            const difficulty = document.getElementById('difficulty').value;
-            if (difficulty === 'easy') {
-                timeLeft = 45;
-            } else if (difficulty === 'medium') {
-                timeLeft = 30;
-            } else if (difficulty === 'hard') {
-                timeLeft = 20;
+            if (mode === 'classic') {
+                const difficulty = document.getElementById('difficulty').value;
+                if (difficulty === 'easy') {
+                    timeLeft = 45;
+                } else if (difficulty === 'medium') {
+                    timeLeft = 30;
+                } else if (difficulty === 'hard') {
+                    timeLeft = 20;
+                }
+            } else {
+                timeLeft = 60;
             }
             document.getElementById('timer').textContent = `Time Left: ${timeLeft}s`;
             updateProgressBar();
@@ -363,7 +375,10 @@
 
         function updateScore() {
             document.getElementById('score').textContent = `Score: ${score}`;
-            if (score > highScore) {
+            if (mode === 'classic' && score > highScore) {
+                highScore = score;
+                document.getElementById('high-score').textContent = `High Score: ${highScore}`;
+            } else if (mode === 'timed' && score > highScore) {
                 highScore = score;
                 document.getElementById('high-score').textContent = `High Score: ${highScore}`;
             }
@@ -385,8 +400,10 @@
         }
 
         function updateProgressBar() {
-            const initialTime = document.getElementById('difficulty').value === 'easy' ? 45 :
-                                document.getElementById('difficulty').value === 'medium' ? 30 : 20;
+            const initialTime = mode === 'classic' ? 
+                (document.getElementById('difficulty').value === 'easy' ? 45 :
+                document.getElementById('difficulty').value === 'medium' ? 30 : 20) :
+                60;
             const progressBar = document.getElementById('progress-bar');
             progressBar.style.width = `${(timeLeft / initialTime) * 100}%`;
         }
@@ -423,17 +440,25 @@
         }
 
         function updateLeaderboard() {
-            leaderboard.push(score);
-            leaderboard.sort((a, b) => b - a);
-            leaderboard = leaderboard.slice(0, 5);
-            localStorage.setItem('leaderboard', JSON.stringify(leaderboard));
-            displayLeaderboard();
+            if (mode === 'classic') {
+                leaderboard.push(score);
+                leaderboard.sort((a, b) => b - a);
+                leaderboard = leaderboard.slice(0, 5);
+                localStorage.setItem('leaderboard', JSON.stringify(leaderboard));
+                displayLeaderboard(leaderboard);
+            } else if (mode === 'timed') {
+                timedLeaderboard.push(score);
+                timedLeaderboard.sort((a, b) => b - a);
+                timedLeaderboard = timedLeaderboard.slice(0, 5);
+                localStorage.setItem('timedLeaderboard', JSON.stringify(timedLeaderboard));
+                displayLeaderboard(timedLeaderboard);
+            }
         }
 
-        function displayLeaderboard() {
+        function displayLeaderboard(leaderboardArray) {
             const leaderboardList = document.getElementById('leaderboard-list');
             leaderboardList.innerHTML = '';
-            leaderboard.forEach((score, index) => {
+            leaderboardArray.forEach((score, index) => {
                 const listItem = document.createElement('li');
                 listItem.textContent = `#${index + 1}: ${score} points`;
                 leaderboardList.appendChild(listItem);
@@ -484,6 +509,11 @@
             localStorage.setItem('musicEnabled', JSON.stringify(musicEnabled));
         }
 
+        function switchMode(selectedMode) {
+            mode = selectedMode;
+            resetGame();
+        }
+
         document.getElementById('dark-mode-toggle').addEventListener('click', toggleDarkMode);
         document.getElementById('sound-toggle').addEventListener('click', toggleSound);
         document.getElementById('music-toggle').addEventListener('click', toggleMusic);
@@ -492,6 +522,8 @@
         document.getElementById('get-hint').addEventListener('click', provideHint);
         document.getElementById('reset').addEventListener('click', resetGame);
         document.getElementById('difficulty').addEventListener('change', resetGame);
+        document.getElementById('classic-mode').addEventListener('click', () => switchMode('classic'));
+        document.getElementById('timed-mode').addEventListener('click', () => switchMode('timed'));
 
         // Initialize the game on page load
         window.onload = () => {
@@ -501,7 +533,7 @@
                 backgroundMusic.play();
             }
             resetGame();
-            displayLeaderboard();
+            displayLeaderboard(leaderboard);
             displayAchievements();
         };
     </script>
