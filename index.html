@@ -181,7 +181,7 @@
             num1 = Math.floor(Math.random() * (max - min + 1)) + min;
             num2 = Math.floor(Math.random() * (max - min + 1)) + min;
 
-            const operations = ['+', '-', '*'];
+            const operations = ['+', '-', '*', '/'];
             operator = operations[Math.floor(Math.random() * operations.length)];
 
             if (operator === '+') {
@@ -190,6 +190,10 @@
                 currentAnswer = num1 - num2;
             } else if (operator === '*') {
                 currentAnswer = num1 * num2;
+            } else if (operator === '/') {
+                // Ensure division results in an integer answer
+                num1 = num1 * num2; // Now num1 is always divisible by num2
+                currentAnswer = num1 / num2;
             }
 
             const puzzleElement = document.getElementById('puzzle');
