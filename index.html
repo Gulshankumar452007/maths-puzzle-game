@@ -104,6 +104,22 @@
         #reset:hover {
             background-color: #e53935;
         }
+
+        #progress-bar-container {
+            width: 80%;
+            height: 20px;
+            background-color: #ccc;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        #progress-bar {
+            height: 100%;
+            background-color: #4CAF50;
+            width: 100%;
+            transition: width 1s linear;
+        }
     </style>
 </head>
 <body>
@@ -129,6 +145,9 @@
                 <div id="score">Score: 0</div>
                 <div id="high-score">High Score: 0</div>
                 <div id="timer">Time Left: 30s</div>
+                <div id="progress-bar-container">
+                    <div id="progress-bar"></div>
+                </div>
             </div>
         </div>
     </main>
@@ -213,6 +232,9 @@
         function updateTimer() {
             timeLeft--;
             document.getElementById('timer').textContent = `Time Left: ${timeLeft}s`;
+
+            const progressBar = document.getElementById('progress-bar');
+            progressBar.style.width = `${(timeLeft / 30) * 100}%`;
 
             if (timeLeft <= 0) {
                 clearInterval(timerInterval);
