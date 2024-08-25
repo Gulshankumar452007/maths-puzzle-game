@@ -134,6 +134,27 @@
             width: 100%;
             transition: width 1s linear;
         }
+
+        #leaderboard {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        #leaderboard h2 {
+            margin-bottom: 10px;
+        }
+
+        #leaderboard ol {
+            padding: 0;
+            list-style-type: none;
+        }
+
+        #leaderboard li {
+            background-color: #f1f1f1;
+            margin-bottom: 5px;
+            padding: 5px;
+            border-radius: 5px;
+        }
     </style>
 </head>
 <body>
@@ -167,6 +188,12 @@
                 <div id="progress-bar-container">
                     <div id="progress-bar"></div>
                 </div>
+                <div id="leaderboard">
+                    <h2>Leaderboard</h2>
+                    <ol id="leaderboard-list">
+                        <!-- Top scores will be displayed here -->
+                    </ol>
+                </div>
             </div>
         </div>
     </main>
@@ -183,6 +210,7 @@
         let streak = 0;
         let timeLeft;
         let timerInterval;
+        let leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
 
         function setInitialTime() {
             const difficulty = document.getElementById('difficulty').value;
@@ -327,6 +355,7 @@
             document.getElementById('submit-answer').disabled = true;
             document.getElementById('new-puzzle').disabled = true;
             document.getElementById('get-hint').disabled = true;
+            updateLeaderboard();
         }
 
         function resetGame() {
@@ -343,6 +372,24 @@
             generatePuzzle();
         }
 
+        function updateLeaderboard() {
+            leaderboard.push(score);
+            leaderboard.sort((a, b) => b - a);
+            leaderboard = leaderboard.slice(0, 5);
+            localStorage.setItem('leaderboard', JSON.stringify(leaderboard));
+            displayLeaderboard();
+        }
+
+        function displayLeaderboard() {
+            const leaderboardList = document.getElementById('leaderboard-list');
+            leaderboardList.innerHTML = '';
+            leaderboard.forEach((score, index) => {
+                const listItem = document.createElement('li');
+                listItem.textContent = `#${index + 1}: ${score} points`;
+                leaderboardList.appendChild(listItem);
+            });
+        }
+
         document.getElementById('new-puzzle').addEventListener('click', generatePuzzle);
         document.getElementById('submit-answer').addEventListener('click', checkAnswer);
         document.getElementById('get-hint').addEventListener('click', provideHint);
@@ -350,7 +397,10 @@
         document.getElementById('difficulty').addEventListener('change', resetGame);
 
         // Initialize the game on page load
-        window.onload = resetGame;
+        window.onload = () => {
+            resetGame();
+            displayLeaderboard();
+        };
     </script>
 </body>
 </html>
