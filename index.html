@@ -133,6 +133,9 @@
         </div>
     </main>
 
+    <audio id="correct-sound" src="https://www.soundjay.com/button/beep-07.wav"></audio>
+    <audio id="incorrect-sound" src="https://www.soundjay.com/button/beep-10.wav"></audio>
+
     <script>
         let currentAnswer;
         let score = 0;
@@ -180,18 +183,22 @@
         function checkAnswer() {
             const userAnswer = parseInt(document.getElementById('answer').value);
             const feedbackElement = document.getElementById('feedback');
+            const correctSound = document.getElementById('correct-sound');
+            const incorrectSound = document.getElementById('incorrect-sound');
 
             if (userAnswer === currentAnswer) {
                 feedbackElement.textContent = 'Correct!';
                 feedbackElement.classList.add('correct');
                 feedbackElement.classList.remove('incorrect');
                 score++;
+                correctSound.play();
                 updateScore();
                 generatePuzzle();
             } else {
                 feedbackElement.textContent = 'Incorrect. Try again!';
                 feedbackElement.classList.add('incorrect');
                 feedbackElement.classList.remove('correct');
+                incorrectSound.play();
             }
         }
 
