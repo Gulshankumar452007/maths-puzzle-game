@@ -52,6 +52,15 @@
             border-radius: 5px;
         }
 
+        select {
+            padding: 10px;
+            font-size: 16px;
+            width: 80%;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
         button {
             background-color: #4CAF50;
             color: white;
@@ -107,6 +116,11 @@
                 <!-- Puzzle will be dynamically generated here -->
             </div>
             <div id="controls">
+                <select id="difficulty">
+                    <option value="easy">Easy</option>
+                    <option value="medium">Medium</option>
+                    <option value="hard">Hard</option>
+                </select>
                 <input type="number" id="answer" placeholder="Your answer">
                 <button id="submit-answer">Submit Answer</button>
                 <button id="new-puzzle">New Puzzle</button>
@@ -125,8 +139,20 @@
         let timerInterval;
 
         function generatePuzzle() {
-            const num1 = Math.floor(Math.random() * 10) + 1;
-            const num2 = Math.floor(Math.random() * 10) + 1;
+            const difficulty = document.getElementById('difficulty').value;
+            let num1, num2;
+
+            if (difficulty === 'easy') {
+                num1 = Math.floor(Math.random() * 10) + 1;
+                num2 = Math.floor(Math.random() * 10) + 1;
+            } else if (difficulty === 'medium') {
+                num1 = Math.floor(Math.random() * 50) + 1;
+                num2 = Math.floor(Math.random() * 50) + 1;
+            } else {
+                num1 = Math.floor(Math.random() * 100) + 1;
+                num2 = Math.floor(Math.random() * 100) + 1;
+            }
+
             currentAnswer = num1 + num2;
 
             const puzzleElement = document.getElementById('puzzle');
