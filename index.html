@@ -27,16 +27,29 @@
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
         }
 
         #puzzle {
             margin-bottom: 20px;
             font-size: 24px;
+            text-align: center;
         }
 
         #controls {
             display: flex;
             justify-content: center;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        input[type="number"] {
+            padding: 10px;
+            font-size: 16px;
+            width: 80%;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
         }
 
         button {
@@ -47,10 +60,26 @@
             border-radius: 5px;
             cursor: pointer;
             font-size: 16px;
+            margin-bottom: 10px;
+            width: 80%;
         }
 
         button:hover {
             background-color: #45a049;
+        }
+
+        #feedback {
+            font-size: 18px;
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        #feedback.correct {
+            color: green;
+        }
+
+        #feedback.incorrect {
+            color: red;
         }
     </style>
 </head>
@@ -64,20 +93,46 @@
                 <!-- Puzzle will be dynamically generated here -->
             </div>
             <div id="controls">
+                <input type="number" id="answer" placeholder="Your answer">
+                <button id="submit-answer">Submit Answer</button>
                 <button id="new-puzzle">New Puzzle</button>
+                <div id="feedback"></div>
             </div>
         </div>
     </main>
 
     <script>
+        let currentAnswer;
+
         function generatePuzzle() {
             const num1 = Math.floor(Math.random() * 10) + 1;
             const num2 = Math.floor(Math.random() * 10) + 1;
+            currentAnswer = num1 + num2;
+
             const puzzleElement = document.getElementById('puzzle');
             puzzleElement.textContent = `What is ${num1} + ${num2}?`;
+
+            document.getElementById('feedback').textContent = '';
+            document.getElementById('answer').value = '';
+        }
+
+        function checkAnswer() {
+            const userAnswer = parseInt(document.getElementById('answer').value);
+            const feedbackElement = document.getElementById('feedback');
+
+            if (userAnswer === currentAnswer) {
+                feedbackElement.textContent = 'Correct!';
+                feedbackElement.classList.add('correct');
+                feedbackElement.classList.remove('incorrect');
+            } else {
+                feedbackElement.textContent = 'Incorrect. Try again!';
+                feedbackElement.classList.add('incorrect');
+                feedbackElement.classList.remove('correct');
+            }
         }
 
         document.getElementById('new-puzzle').addEventListener('click', generatePuzzle);
+        document.getElementById('submit-answer').addEventListener('click', checkAnswer);
 
         // Generate the first puzzle on page load
         generatePuzzle();
