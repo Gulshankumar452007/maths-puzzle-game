@@ -155,6 +155,27 @@
             padding: 5px;
             border-radius: 5px;
         }
+
+        #achievements {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        #achievements h2 {
+            margin-bottom: 10px;
+        }
+
+        #achievements ul {
+            padding: 0;
+            list-style-type: none;
+        }
+
+        #achievements li {
+            background-color: #e1e1e1;
+            margin-bottom: 5px;
+            padding: 5px;
+            border-radius: 5px;
+        }
     </style>
 </head>
 <body>
@@ -194,6 +215,12 @@
                         <!-- Top scores will be displayed here -->
                     </ol>
                 </div>
+                <div id="achievements">
+                    <h2>Achievements</h2>
+                    <ul id="achievement-list">
+                        <!-- Achievements will be displayed here -->
+                    </ul>
+                </div>
             </div>
         </div>
     </main>
@@ -211,6 +238,15 @@
         let timeLeft;
         let timerInterval;
         let leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
+        let achievements = JSON.parse(localStorage.getItem('achievements')) || [];
+
+        const achievementList = [
+            { id: 1, name: 'Score 50 Points', achieved: false, check: () => score >= 50 },
+            { id: 2, name: 'High Streak of 10', achieved: false, check: () => streak >= 10 },
+            { id: 3, name: 'Finish a Game Without Hints', achieved: false, check: () => streak > 0 && score > 0 && !hintUsedThisGame }
+        ];
+
+        let hintUsedThisGame = false;
 
         function setInitialTime() {
             const difficulty = document.getElementById('difficulty').value;
@@ -269,6 +305,7 @@
             let hintMessage = '';
             if (score > 0) {
                 score--;
+                hintUsedThisGame = true;
                 updateScore();
                 if (currentOperator === '+' || currentOperator === '-') {
                     hintMessage = `One of the numbers is ${currentPuzzle.num1}.`;
@@ -298,6 +335,7 @@
                 correctSound.play();
                 updateScore();
                 updateStreak();
+                checkAchievements();
                 generatePuzzle();
             } else {
                 feedbackElement.textContent = 'Incorrect. Streak reset!';
@@ -356,6 +394,8 @@
             document.getElementById('new-puzzle').disabled = true;
             document.getElementById('get-hint').disabled = true;
             updateLeaderboard();
+            checkAchievements();
+            hintUsedThisGame = false;
         }
 
         function resetGame() {
@@ -390,6 +430,27 @@
             });
         }
 
+        function checkAchievements() {
+            achievementList.forEach(achievement => {
+                if (!achievement.achieved && achievement.check()) {
+                    achievement.achieved = true;
+                    achievements.push(achievement);
+                    localStorage.setItem('achievements', JSON.stringify(achievements));
+                }
+            });
+            displayAchievements();
+        }
+
+        function displayAchievements() {
+            const achievementListElement = document.getElementById('achievement-list');
+            achievementListElement.innerHTML = '';
+            achievements.forEach(achievement => {
+                const listItem = document.createElement('li');
+                listItem.textContent = `🏆 ${achievement.name}`;
+                achievementListElement.appendChild(listItem);
+            });
+        }
+
         document.getElementById('new-puzzle').addEventListener('click', generatePuzzle);
         document.getElementById('submit-answer').addEventListener('click', checkAnswer);
         document.getElementById('get-hint').addEventListener('click', provideHint);
@@ -400,6 +461,7 @@
         window.onload = () => {
             resetGame();
             displayLeaderboard();
+            displayAchievements();
         };
     </script>
 </body>
