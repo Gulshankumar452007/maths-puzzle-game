@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math Puzzle Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        #game-container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        #puzzle {
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        #controls {
+            display: flex;
+            justify-content: center;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Welcome to the Math Puzzle Game!</h1>
+    </header>
+    <main>
+        <div id="game-container">
+            <div id="puzzle">
+                <!-- Puzzle will be dynamically generated here -->
+            </div>
+            <div id="controls">
+                <button id="new-puzzle">New Puzzle</button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function generatePuzzle() {
+            const num1 = Math.floor(Math.random() * 10) + 1;
+            const num2 = Math.floor(Math.random() * 10) + 1;
+            const puzzleElement = document.getElementById('puzzle');
+            puzzleElement.textContent = `What is ${num1} + ${num2}?`;
+        }
+
+        document.getElementById('new-puzzle').addEventListener('click', generatePuzzle);
+
+        // Generate the first puzzle on page load
+        generatePuzzle();
+    </script>
+</body>
+</html>
