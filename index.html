@@ -5,10 +5,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Math Puzzle Game</title>
     <style>
+        :root {
+            --background-color: #f4f4f4;
+            --text-color: #333;
+            --container-background: #fff;
+            --button-background: #4CAF50;
+            --button-hover-background: #45a049;
+            --hint-color: #555;
+        }
+
+        [data-theme="dark"] {
+            --background-color: #333;
+            --text-color: #f4f4f4;
+            --container-background: #444;
+            --button-background: #888;
+            --button-hover-background: #777;
+            --hint-color: #bbb;
+        }
+
         body {
             font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            color: #333;
+            background-color: var(--background-color);
+            color: var(--text-color);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -23,7 +41,7 @@
         }
 
         #game-container {
-            background-color: #fff;
+            background-color: var(--container-background);
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -40,7 +58,7 @@
             margin-bottom: 10px;
             font-size: 18px;
             text-align: center;
-            color: #555;
+            color: var(--hint-color);
         }
 
         #controls {
@@ -49,16 +67,7 @@
             align-items: center;
         }
 
-        input[type="number"] {
-            padding: 10px;
-            font-size: 16px;
-            width: 90%;
-            margin-bottom: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-
-        select {
+        input[type="number"], select, button {
             padding: 10px;
             font-size: 16px;
             width: 90%;
@@ -68,35 +77,25 @@
         }
 
         button {
-            background-color: #4CAF50;
-            color: white;
-            padding: 10px;
+            background-color: var(--button-background);
+            color: var(--text-color);
             border: none;
-            border-radius: 5px;
             cursor: pointer;
-            font-size: 16px;
-            margin: 5px;
-            width: 90%;
         }
 
         button:hover {
-            background-color: #45a049;
+            background-color: var(--button-hover-background);
         }
 
-        #get-hint {
-            background-color: #2196F3;
+        #dark-mode-toggle {
+            background-color: #444;
+            color: white;
+            width: auto;
+            margin-top: 10px;
         }
 
-        #get-hint:hover {
-            background-color: #1976D2;
-        }
-
-        #reset {
-            background-color: #f44336;
-        }
-
-        #reset:hover {
-            background-color: #e53935;
+        #dark-mode-toggle:hover {
+            background-color: #555;
         }
 
         #feedback {
@@ -130,7 +129,7 @@
 
         #progress-bar {
             height: 100%;
-            background-color: #4CAF50;
+            background-color: var(--button-background);
             width: 100%;
             transition: width 1s linear;
         }
@@ -178,7 +177,7 @@
         }
     </style>
 </head>
-<body>
+<body data-theme="light">
     <header>
         <h1>Welcome to the Math Puzzle Game!</h1>
     </header>
@@ -201,6 +200,7 @@
                 <button id="get-hint">Get Hint (-1 Point)</button>
                 <button id="new-puzzle">New Puzzle</button>
                 <button id="reset">Reset Game</button>
+                <button id="dark-mode-toggle">Toggle Dark Mode</button>
                 <div id="feedback"></div>
                 <div id="score">Score: 0</div>
                 <div id="high-score">High Score: 0</div>
@@ -239,6 +239,7 @@
         let timerInterval;
         let leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
         let achievements = JSON.parse(localStorage.getItem('achievements')) || [];
+        let theme = localStorage.getItem('theme') || 'light';
 
         const achievementList = [
             { id: 1, name: 'Score 50 Points', achieved: false, check: () => score >= 50 },
@@ -451,6 +452,14 @@
             });
         }
 
+        function toggleDarkMode() {
+            const newTheme = theme === 'light' ? 'dark' : 'light';
+            document.body.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            theme = newTheme;
+        }
+
+        document.getElementById('dark-mode-toggle').addEventListener('click', toggleDarkMode);
         document.getElementById('new-puzzle').addEventListener('click', generatePuzzle);
         document.getElementById('submit-answer').addEventListener('click', checkAnswer);
         document.getElementById('get-hint').addEventListener('click', provideHint);
@@ -459,6 +468,7 @@
 
         // Initialize the game on page load
         window.onload = () => {
+            document.body.setAttribute('data-theme', theme);
             resetGame();
             displayLeaderboard();
             displayAchievements();
