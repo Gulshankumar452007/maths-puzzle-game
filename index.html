@@ -140,23 +140,36 @@
 
         function generatePuzzle() {
             const difficulty = document.getElementById('difficulty').value;
-            let num1, num2;
+            let num1, num2, operator;
+            let min, max;
 
             if (difficulty === 'easy') {
-                num1 = Math.floor(Math.random() * 10) + 1;
-                num2 = Math.floor(Math.random() * 10) + 1;
+                min = 1;
+                max = 10;
             } else if (difficulty === 'medium') {
-                num1 = Math.floor(Math.random() * 50) + 1;
-                num2 = Math.floor(Math.random() * 50) + 1;
+                min = 1;
+                max = 50;
             } else {
-                num1 = Math.floor(Math.random() * 100) + 1;
-                num2 = Math.floor(Math.random() * 100) + 1;
+                min = 1;
+                max = 100;
             }
 
-            currentAnswer = num1 + num2;
+            num1 = Math.floor(Math.random() * (max - min + 1)) + min;
+            num2 = Math.floor(Math.random() * (max - min + 1)) + min;
+
+            const operations = ['+', '-', '*'];
+            operator = operations[Math.floor(Math.random() * operations.length)];
+
+            if (operator === '+') {
+                currentAnswer = num1 + num2;
+            } else if (operator === '-') {
+                currentAnswer = num1 - num2;
+            } else if (operator === '*') {
+                currentAnswer = num1 * num2;
+            }
 
             const puzzleElement = document.getElementById('puzzle');
-            puzzleElement.textContent = `What is ${num1} + ${num2}?`;
+            puzzleElement.textContent = `What is ${num1} ${operator} ${num2}?`;
 
             document.getElementById('feedback').textContent = '';
             document.getElementById('answer').value = '';
