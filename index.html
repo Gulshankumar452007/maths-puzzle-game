@@ -7,7 +7,7 @@
     <style>
         /* Previous styles omitted for brevity */
 
-        #puzzle-history-container {
+        #challenge-levels-container {
             margin-top: 20px;
             background-color: #f9f9f9;
             border-radius: 5px;
@@ -17,14 +17,14 @@
             display: none;
         }
 
-        #puzzle-history {
+        #challenge-levels {
             height: 150px;
             overflow-y: auto;
             border-bottom: 1px solid #ddd;
             margin-bottom: 10px;
         }
 
-        .history-item {
+        .challenge-item {
             margin-bottom: 5px;
             padding: 5px;
             background-color: #fff;
@@ -32,23 +32,8 @@
             cursor: pointer;
         }
 
-        .history-item:hover {
+        .challenge-item:hover {
             background-color: #e0e0e0;
-        }
-
-        #replay-button {
-            margin-top: 10px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            padding: 10px;
-            border-radius: 5px;
-            cursor: pointer;
-            width: 100%;
-        }
-
-        #replay-button:hover {
-            background-color: #45a049;
         }
 
     </style>
@@ -78,6 +63,7 @@
                     <option value="easy">Easy</option>
                     <option value="medium" selected>Medium</option>
                     <option value="hard">Hard</option>
+                    <option value="adaptive">Adaptive</option>
                 </select>
                 <input type="number" id="answer" placeholder="Your answer">
                 <button id="submit-answer">Submit Answer</button>
@@ -115,6 +101,12 @@
                         <!-- Solved puzzles will be listed here -->
                     </div>
                     <button id="replay-button">Replay Selected Puzzle</button>
+                </div>
+                <div id="challenge-levels-container">
+                    <h3>Challenge Levels</h3>
+                    <div id="challenge-levels">
+                        <!-- Unlocked challenge levels will be listed here -->
+                    </div>
                 </div>
                 <div id="settings-menu">
                     <label for="background-color">Background Color:</label>
@@ -240,6 +232,7 @@
         ];
         let puzzleHistory = [];
         let selectedPuzzle = null;
+        let challengeLevels = [];
         let tutorialVisible = false;
 
         const achievementList = [
@@ -265,7 +258,7 @@
         let hintUsedThisGame = false;
 
         function setInitialTime() {
-            if (mode === 'classic') {
+            if (mode === 'classic' || mode === 'adaptive') {
                 const difficulty = document.getElementById('difficulty').value;
                 if (difficulty === 'easy') {
                     timeLeft = 45;
@@ -273,6 +266,8 @@
                     timeLeft = 30;
                 } else if (difficulty === 'hard') {
                     timeLeft = 20;
+                } else if (difficulty === 'adaptive') {
+                    timeLeft = adaptiveTimeBasedOnPerformance();
                 }
             } else if (mode === 'timed') {
                 timeLeft = 60;
@@ -291,6 +286,18 @@
             updateProgressBar();
         }
 
+        function adaptiveTimeBasedOnPerformance() {
+            // Adjust time based on player's accuracy and streak
+            const accuracy = correctAnswers > 0 ? (correctAnswers / totalPuzzles) * 100 : 0;
+            if (accuracy > 80 && streak >= 5) {
+                return 20; // Make it harder
+            } else if (accuracy > 50) {
+                return 30; // Medium challenge
+            } else {
+                return 45; // Easy challenge
+            }
+        }
+
         function generatePuzzle() {
             const difficulty = document.getElementById('difficulty').value;
             let num1, num2;
@@ -302,9 +309,11 @@
             } else if (difficulty === 'medium') {
                 min = 10;
                 max = 50;
-            } else {
+            } else if (difficulty === 'hard') {
                 min = 50;
                 max = 100;
+            } else if (difficulty === 'adaptive') {
+                ({ min, max } = adaptiveDifficultyBasedOnPerformance());
             }
 
             num1 = Math.floor(Math.random() * (max - min + 1)) + min;
@@ -333,6 +342,17 @@
 
             // Add puzzle to history
             addToPuzzleHistory(currentPuzzle);
+        }
+
+        function adaptiveDifficultyBasedOnPerformance() {
+            const accuracy = correctAnswers > 0 ? (correctAnswers / totalPuzzles) * 100 : 0;
+            if (accuracy > 80 && streak >= 5) {
+                return { min: 50, max: 100 }; // Make it harder
+            } else if (accuracy > 50) {
+                return { min: 10, max: 50 }; // Medium challenge
+            } else {
+                return { min: 1, max: 10 }; // Easy challenge
+            }
         }
 
         function provideHint() {
@@ -467,9 +487,9 @@
         }
 
         function updateProgressBar() {
-            const initialTime = mode === 'classic' ?
+            const initialTime = mode === 'classic' || mode === 'adaptive' ?
                 (document.getElementById('difficulty').value === 'easy' ? 45 :
-                    document.getElementById('difficulty').value === 'medium' ? 30 : 20) :
+                    document.getElementById('difficulty').value === 'medium' ? 30 : document.getElementById('difficulty').value === 'adaptive' ? adaptiveTimeBasedOnPerformance() : 20) :
                 (mode === 'timed' ? 60 : mode === 'daily' ? 90 : mode === 'survival' ? 30 : 10);
             const progressBar = document.getElementById('progress-bar');
             progressBar.style.width = `${(timeLeft / initialTime) * 100}%`;
@@ -812,6 +832,32 @@
             }
         }
 
+        function unlockChallengeLevel(levelName, criteria) {
+            if (!challengeLevels.includes(levelName) && criteria()) {
+                challengeLevels.push(levelName);
+                displayChallengeLevels();
+            }
+        }
+
+        function displayChallengeLevels() {
+            const challengeLevelsContainer = document.getElementById('challenge-levels-container');
+            challengeLevelsContainer.style.display = 'block';
+            const challengeLevelsList = document.getElementById('challenge-levels');
+            challengeLevelsList.innerHTML = '';
+            challengeLevels.forEach(level => {
+                const listItem = document.createElement('div');
+                listItem.classList.add('challenge-item');
+                listItem.textContent = `🔓 ${level}`;
+                challengeLevelsList.appendChild(listItem);
+            });
+        }
+
+        function checkChallengeLevelUnlocks() {
+            unlockChallengeLevel('Master of Medium', () => score >= 100 && document.getElementById('difficulty').value === 'medium');
+            unlockChallengeLevel('Survival Expert', () => mode === 'survival' && score >= 50);
+            unlockChallengeLevel('Puzzle Rush Master', () => mode === 'puzzle-rush' && score >= 30);
+        }
+
         function displayTutorial() {
             const tutorialElement = document.getElementById('tutorial');
             tutorialVisible = !tutorialVisible;
@@ -896,6 +942,7 @@
             updateDailyStats();
             displayGameHistory();
             updateStatistics();
+            checkChallengeLevelUnlocks();
         };
     </script>
 </body>
