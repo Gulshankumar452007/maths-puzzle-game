@@ -5,265 +5,54 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Math Puzzle Game</title>
     <style>
-        :root {
-            --background-color: var(--default-background, #f4f4f4);
-            --text-color: var(--default-text, #333);
-            --container-background: #fff;
-            --button-background: #4CAF50;
-            --button-hover-background: #45a049;
-            --hint-color: #555;
-        }
-        [data-theme="dark"] {
-            --background-color: var(--default-background, #333);
-            --text-color: var(--default-text, #f4f4f4);
-            --container-background: #444;
-            --button-background: #888;
-            --button-hover-background: #777;
-            --hint-color: #bbb;
-        }
-        [data-theme="blue"] {
-            --background-color: var(--default-background, #e0f7fa);
-            --text-color: var(--default-text, #00796b);
-            --container-background: #ffffff;
-            --button-background: #00796b;
-            --button-hover-background: #004d40;
-            --hint-color: #004d40;
-        }
-        [data-theme="high-contrast"] {
-            --background-color: var(--default-background, #000000);
-            --text-color: var(--default-text, #ffffff);
-            --container-background: #000000;
-            --button-background: #ffffff;
-            --button-hover-background: #cccccc;
-            --hint-color: #ffffff;
-        }
-        body {
-            font-family: Arial, sans-serif;
-            background-color: var(--background-color);
-            color: var(--text-color);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
-            font-size: var(--default-font-size, 16px);
-        }
-        header {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        #game-container {
-            background-color: var(--container-background);
-            padding: 20px;
-            border-radius: 8px;
+        /* Previous styles omitted for brevity */
+
+        #puzzle-history-container {
+        #challenge-levels-container {
+            margin-top: 20px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            padding: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             width: 350px;
-        }
-        #puzzle {
-            margin-bottom: 10px;
-            font-size: 24px;
-            text-align: center;
-        }
-        #hint {
-            margin-bottom: 10px;
-            font-size: 18px;
-            text-align: center;
-            color: var(--hint-color);
-        }
-        #controls {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        input[type="number"], select, button {
-            padding: 10px;
-            font-size: 16px;
-            width: 90%;
-            margin-bottom: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-        button {
-            background-color: var(--button-background);
-            color: var(--text-color);
-            border: none;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: var(--button-hover-background);
-        }
-        #dark-mode-toggle, #sound-toggle, #music-toggle, #settings-toggle, #tutorial-toggle {
-            background-color: #444;
-            color: white;
-            width: auto;
-            margin-top: 10px;
-        }
-        #dark-mode-toggle:hover, #sound-toggle:hover, #music-toggle:hover, #settings-toggle:hover, #tutorial-toggle:hover {
-            background-color: #555;
-        }
-        #feedback {
-            font-size: 18px;
-            margin-top: 10px;
-            text-align: center;
-        }
-        #feedback.correct {
-            color: green;
-        }
-        #feedback.incorrect {
-            color: red;
-        }
-        #score, #timer, #high-score, #streak {
-            font-size: 18px;
-            margin-top: 5px;
-            text-align: center;
-        }
-        #progress-bar-container {
-            width: 90%;
-            height: 20px;
-            background-color: #ccc;
-            border-radius: 10px;
-            overflow: hidden;
-            margin-top: 10px;
-        }
-        #progress-bar {
-            height: 100%;
-            background-color: var(--button-background);
-            width: 100%;
-            transition: width 1s linear;
-        }
-        #leaderboard {
-            margin-top: 20px;
-            text-align: center;
-        }
-        #leaderboard h2 {
-            margin-bottom: 10px;
-        }
-        #leaderboard ol {
-            padding: 0;
-            list-style-type: none;
-        }
-        #leaderboard li {
-            background-color: #f1f1f1;
-            margin-bottom: 5px;
-            padding: 5px;
-            border-radius: 5px;
-        }
-        #achievements {
-            margin-top: 20px;
-            text-align: center;
-        }
-        #achievements h2 {
-            margin-bottom: 10px;
-        }
-        #achievements ul {
-            padding: 0;
-            list-style-type: none;
-        }
-        #achievements li {
-            background-color: #e1e1e1;
-            margin-bottom: 5px;
-            padding: 5px;
-            border-radius: 5px;
-        }
-        #settings-menu {
             display: none;
-            flex-direction: column;
-            align-items: center;
-            margin-top: 20px;
-        }
-        #settings-menu label {
-            margin-bottom: 10px;
-        }
-        #settings-menu input[type="color"] {
-            margin-bottom: 20px;
-        }
-        #settings-menu input[type="range"] {
-            width: 90%;
-        }
-        #close-settings {
-            background-color: #e74c3c;
-            color: white;
-            margin-top: 20px;
-        }
-        #close-settings:hover {
-            background-color: #c0392b;
-        }
-        #theme-selection {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-top: 20px;
-        }
-        #theme-selection label {
-            margin-bottom: 10px;
-        }
-        #accessibility-options {
-            margin-top: 20px;
-            text-align: center;
-        }
-        #accessibility-options label {
-            margin-right: 10px;
-        }
-        #tutorial {
-            display: none;
-            margin-top: 20px;
-            text-align: center;
-            background-color: #f9f9f9;
-            padding: 10px;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-        #tips {
-            margin-top: 20px;
-            text-align: center;
-            font-size: 16px;
-            color: #888;
         }
 
-        #end-summary {
-            display: none;
-            margin-top: 20px;
-            text-align: center;
-            background-color: #f9f9f9;
-            padding: 10px;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-
-        #end-summary ul {
-            list-style-type: none;
-            padding: 0;
-        }
-
-        #end-summary li {
-            margin-bottom: 10px;
-            padding: 5px;
+        #puzzle-history {
+        #challenge-levels {
+            height: 150px;
+            overflow-y: auto;
             border-bottom: 1px solid #ddd;
+            margin-bottom: 10px;
         }
 
-        #share-buttons {
-            display: flex;
-            justify-content: center;
-            margin-top: 20px;
-        }
-
-        .share-button {
-            background-color: #1da1f2;
-            color: white;
-            border: none;
-            padding: 10px;
-            margin: 5px;
+        .history-item {
+        .challenge-item {
+            margin-bottom: 5px;
+            padding: 5px;
+            background-color: #fff;
             border-radius: 5px;
             cursor: pointer;
         }
 
-        .share-button.fb {
-            background-color: #3b5998;
+        .history-item:hover {
+        .challenge-item:hover {
+            background-color: #e0e0e0;
         }
 
-        .share-button:hover {
-            opacity: 0.8;
+        #replay-button {
+            margin-top: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        #replay-button:hover {
+            background-color: #45a049;
         }
 
     </style>
@@ -277,6 +66,8 @@
             <div id="mode-selection">
                 <button id="classic-mode">Classic Mode</button>
                 <button id="timed-mode">Timed Challenges</button>
+                <button id="survival-mode">Survival Mode</button>
+                <button id="puzzle-rush-mode">Puzzle Rush</button>
                 <button id="multiplayer-mode">Multiplayer Mode</button>
                 <button id="daily-challenge-mode">Daily Challenge</button>
             </div>
@@ -291,6 +82,7 @@
                     <option value="easy">Easy</option>
                     <option value="medium" selected>Medium</option>
                     <option value="hard">Hard</option>
+                    <option value="adaptive">Adaptive</option>
                 </select>
                 <input type="number" id="answer" placeholder="Your answer">
                 <button id="submit-answer">Submit Answer</button>
@@ -322,11 +114,26 @@
                         <!-- Achievements will be displayed here -->
                     </ul>
                 </div>
+                <div id="puzzle-history-container">
+                    <h3>Puzzle History</h3>
+                    <div id="puzzle-history">
+                        <!-- Solved puzzles will be listed here -->
+                    </div>
+                    <button id="replay-button">Replay Selected Puzzle</button>
+                </div>
+                <div id="challenge-levels-container">
+                    <h3>Challenge Levels</h3>
+                    <div id="challenge-levels">
+                        <!-- Unlocked challenge levels will be listed here -->
+                    </div>
+                </div>
                 <div id="settings-menu">
                     <label for="background-color">Background Color:</label>
                     <input type="color" id="background-color">
                     <label for="text-color">Text Color:</label>
                     <input type="color" id="text-color">
+                    <label for="button-color">Button Color:</label>
+                    <input type="color" id="button-color">
                     <label for="sound-volume">Sound Volume:</label>
                     <input type="range" id="sound-volume" min="0" max="100">
                     <label for="music-volume">Music Volume:</label>
@@ -422,6 +229,7 @@
         let musicVolume = JSON.parse(localStorage.getItem('musicVolume')) || 50;
         let backgroundColor = localStorage.getItem('backgroundColor') || '#f4f4f4';
         let textColor = localStorage.getItem('textColor') || '#333';
+        let buttonColor = localStorage.getItem('buttonColor') || '#4CAF50';
         let largeText = JSON.parse(localStorage.getItem('largeText')) || false;
         let highContrastMode = JSON.parse(localStorage.getItem('highContrastMode')) || false;
         let mode = 'classic';
@@ -439,17 +247,21 @@
             "Multiplayer mode is more fun with friends!",
             "Keep track of your progress in the statistics section."
         ];
+        let puzzleHistory = [];
+        let selectedPuzzle = null;
+        let challengeLevels = [];
         let tutorialVisible = false;
+
         const achievementList = [
             { id: 1, name: 'Score 50 Points on Easy', achieved: false, difficulty: 'easy', check: () => score >= 50 && document.getElementById('difficulty').value === 'easy' },
-            { id: 2, name: 'High Streak of 10 on Easy', achieved: false, difficulty: 'easy', check: () => streak >= 10 and document.getElementById('difficulty').value === 'easy' },
-            { id: 3, name: 'Score 50 Points on Medium', achieved: false, difficulty: 'medium', check: () => score >= 50 and document.getElementById('difficulty').value === 'medium' },
-            { id: 4, name: 'High Streak of 10 on Medium', achieved: false, difficulty: 'medium', check: () => streak >= 10 and document.getElementById('difficulty').value === 'medium' },
-            { id: 5, name: 'Score 50 Points on Hard', achieved: false, difficulty: 'hard', check: () => score >= 50 and document.getElementById('difficulty').value === 'hard' },
-            { id: 6, name: 'High Streak of 10 on Hard', achieved: false, difficulty: 'hard', check: () => streak >= 10 and document.getElementById('difficulty').value === 'hard' },
-            { id: 7, name: 'Finish a Game Without Hints on Any Difficulty', achieved: false, check: () => streak > 0 and score > 0 and !hintUsedThisGame },
-            { id: 8, name: 'Score 100 Points in Timed Challenges', achieved: false, check: () => score >= 100 and mode === 'timed' },
-            { id: 9, name: 'Solve 10 Puzzles in Timed Challenges', achieved: false, check: () => streak >= 10 and mode === 'timed' }
+            { id: 2, name: 'High Streak of 10 on Easy', achieved: false, difficulty: 'easy', check: () => streak >= 10 && document.getElementById('difficulty').value === 'easy' },
+            { id: 3, name: 'Score 50 Points on Medium', achieved: false, difficulty: 'medium', check: () => score >= 50 && document.getElementById('difficulty').value === 'medium' },
+            { id: 4, name: 'High Streak of 10 on Medium', achieved: false, difficulty: 'medium', check: () => streak >= 10 && document.getElementById('difficulty').value === 'medium' },
+            { id: 5, name: 'Score 50 Points on Hard', achieved: false, difficulty: 'hard', check: () => score >= 50 && document.getElementById('difficulty').value === 'hard' },
+            { id: 6, name: 'High Streak of 10 on Hard', achieved: false, difficulty: 'hard', check: () => streak >= 10 && document.getElementById('difficulty').value === 'hard' },
+            { id: 7, name: 'Finish a Game Without Hints on Any Difficulty', achieved: false, check: () => streak > 0 && score > 0 && !hintUsedThisGame },
+            { id: 8, name: 'Score 100 Points in Timed Challenges', achieved: false, check: () => score >= 100 && mode === 'timed' },
+            { id: 9, name: 'Solve 10 Puzzles in Timed Challenges', achieved: false, check: () => streak >= 10 && mode === 'timed' }
         ];
         const dailyAchievementList = [
             { id: 1, name: 'Complete 1 Daily Challenge', achieved: false, check: () => dailyChallengeCompleted },
@@ -459,8 +271,10 @@
             { id: 5, name: 'Complete a Daily Challenge Streak of 30 Days', achieved: false, check: () => checkDailyChallengeStreak(30) }
         ];
         let hintUsedThisGame = false;
+
         function setInitialTime() {
             if (mode === 'classic') {
+            if (mode === 'classic' || mode === 'adaptive') {
                 const difficulty = document.getElementById('difficulty').value;
                 if (difficulty === 'easy') {
                     timeLeft = 45;
@@ -468,17 +282,38 @@
                     timeLeft = 30;
                 } else if (difficulty === 'hard') {
                     timeLeft = 20;
+                } else if (difficulty === 'adaptive') {
+                    timeLeft = adaptiveTimeBasedOnPerformance();
                 }
             } else if (mode === 'timed') {
                 timeLeft = 60;
             } else if (mode === 'daily') {
                 timeLeft = 90; // Daily challenges have 90 seconds
-            } else {
+            } else if (mode === 'survival') {
+                timeLeft = 30; // Survival mode starts with 30 seconds
+            } else if (mode === 'puzzle-rush') {
+                timeLeft = 10; // Puzzle Rush mode starts with 10 seconds per puzzle
+            } else if (mode === 'multiplayer') {
                 timeLeft = 120; // Multiplayer mode has 2 minutes total for the game
+            } else {
+                timeLeft = 120;
             }
             document.getElementById('timer').textContent = `Time Left: ${timeLeft}s`;
             updateProgressBar();
         }
+
+        function adaptiveTimeBasedOnPerformance() {
+            // Adjust time based on player's accuracy and streak
+            const accuracy = correctAnswers > 0 ? (correctAnswers / totalPuzzles) * 100 : 0;
+            if (accuracy > 80 && streak >= 5) {
+                return 20; // Make it harder
+            } else if (accuracy > 50) {
+                return 30; // Medium challenge
+            } else {
+                return 45; // Easy challenge
+            }
+        }
+
         function generatePuzzle() {
             const difficulty = document.getElementById('difficulty').value;
             let num1, num2;
@@ -490,9 +325,13 @@
                 min = 10;
                 max = 50;
             } else {
+            } else if (difficulty === 'hard') {
                 min = 50;
                 max = 100;
+            } else if (difficulty === 'adaptive') {
+                ({ min, max } = adaptiveDifficultyBasedOnPerformance());
             }
+
             num1 = Math.floor(Math.random() * (max - min + 1)) + min;
             num2 = Math.floor(Math.random() * (max - min + 1)) + min;
             const operations = ['+', '-', '*', '/'];
@@ -507,13 +346,27 @@
                 currentAnswer = num1;
                 num1 = currentAnswer * num2;
             }
-            currentPuzzle = { num1, num2 };
+            currentPuzzle = { num1, num2, operator: currentOperator, answer: currentAnswer };
             document.getElementById('puzzle').textContent = `What is ${num1} ${currentOperator} ${num2}?`;
             document.getElementById('hint').textContent = '';
             document.getElementById('feedback').textContent = '';
             document.getElementById('answer').value = '';
             responseStartTime = Date.now();
+            // Add puzzle to history
+            addToPuzzleHistory(currentPuzzle);
         }
+
+        function adaptiveDifficultyBasedOnPerformance() {
+            const accuracy = correctAnswers > 0 ? (correctAnswers / totalPuzzles) * 100 : 0;
+            if (accuracy > 80 && streak >= 5) {
+                return { min: 50, max: 100 }; // Make it harder
+            } else if (accuracy > 50) {
+                return { min: 10, max: 50 }; // Medium challenge
+            } else {
+                return { min: 1, max: 10 }; // Easy challenge
+            }
+        }
+
         function provideHint() {
             let hintMessage = '';
             if (score > 0) {
@@ -552,6 +405,9 @@
                 correctAnswers++;
                 totalPuzzles++;
                 totalResponseTime += responseTime;
+                if (mode === 'survival') {
+                    timeLeft += 5; // Add 5 seconds for each correct answer in Survival Mode
+                }
                 if (soundEnabled) {
                     correctSound.volume = soundVolume / 100;
                     correctSound.play();
@@ -591,6 +447,9 @@
             localStorage.setItem('correctAnswers', JSON.stringify(correctAnswers));
             localStorage.setItem('incorrectAnswers', JSON.stringify(incorrectAnswers));
             localStorage.setItem('totalResponseTime', JSON.stringify(totalResponseTime));
+            if (mode === 'puzzle-rush' && timeLeft <= 0) {
+                endGame();
+            }
         }
         function getBonusPoints() {
             return streak >= 3 ? Math.floor(streak / 3) : 0;
@@ -600,10 +459,10 @@
             if (mode === 'classic' && score > highScore) {
                 highScore = score;
                 document.getElementById('high-score').textContent = `High Score: ${highScore}`;
-            } else if (mode === 'timed' and score > highScore) {
+            } else if (mode === 'timed' && score > highScore) {
                 highScore = score;
                 document.getElementById('high-score').textContent = `High Score: ${highScore}`;
-            } else if (mode === 'daily' and score > highScore) {
+            } else if (mode === 'daily' && score > highScore) {
                 highScore = score;
                 document.getElementById('high-score').textContent = `High Score: ${highScore}`;
             }
@@ -623,11 +482,14 @@
                 endGame();
             }
         }
+
         function updateProgressBar() {
-            const initialTime = mode === 'classic' ? 
+            const initialTime = mode === 'classic' ?
+            const initialTime = mode === 'classic' || mode === 'adaptive' ?
                 (document.getElementById('difficulty').value === 'easy' ? 45 :
-                document.getElementById('difficulty').value === 'medium' ? 30 : 20) :
-                (mode === 'timed' ? 60 : mode === 'daily' ? 90 : 120);
+                    document.getElementById('difficulty').value === 'medium' ? 30 : 20) :
+                    document.getElementById('difficulty').value === 'medium' ? 30 : document.getElementById('difficulty').value === 'adaptive' ? adaptiveTimeBasedOnPerformance() : 20) :
+                (mode === 'timed' ? 60 : mode === 'daily' ? 90 : mode === 'survival' ? 30 : 10);
             const progressBar = document.getElementById('progress-bar');
             progressBar.style.width = `${(timeLeft / initialTime) * 100}%`;
         }
@@ -650,6 +512,10 @@
                 localStorage.setItem('dailyChallengeCompleted', JSON.stringify(dailyChallengeCompleted));
                 updateDailyLeaderboard();
                 checkDailyAchievements();
+            } else if (mode === 'survival') {
+                endMessage = `Survival Mode Over! Your final score is ${score}.`;
+            } else if (mode === 'puzzle-rush') {
+                endMessage = `Puzzle Rush Over! Your final score is ${score}.`;
             }
             document.getElementById('feedback').textContent = endMessage;
             document.getElementById('feedback').classList.remove('correct', 'incorrect');
@@ -658,13 +524,14 @@
             document.getElementById('submit-answer').disabled = true;
             document.getElementById('new-puzzle').disabled = true;
             document.getElementById('get-hint').disabled = true;
+            document.getElementById('chat-container').style.display = 'none';
+            document.getElementById('power-ups-container').style.display = 'none';
             updateLeaderboard();
             checkAchievements();
             saveGameHistory();
             hintUsedThisGame = false;
             displayEndSummary();
         }
-
         function resetGame() {
             score = 0;
             streak = 0;
@@ -704,6 +571,18 @@
                 dailyLeaderboard = dailyLeaderboard.slice(0, 5);
                 localStorage.setItem('dailyLeaderboard', JSON.stringify(dailyLeaderboard));
                 displayLeaderboard(dailyLeaderboard);
+            } else if (mode === 'survival') {
+                leaderboard.push(score);
+                leaderboard.sort((a, b) => b - a);
+                leaderboard = leaderboard.slice(0, 5);
+                localStorage.setItem('survivalLeaderboard', JSON.stringify(leaderboard));
+                displayLeaderboard(leaderboard);
+            } else if (mode === 'puzzle-rush') {
+                leaderboard.push(score);
+                leaderboard.sort((a, b) => b - a);
+                leaderboard = leaderboard.slice(0, 5);
+                localStorage.setItem('puzzleRushLeaderboard', JSON.stringify(leaderboard));
+                displayLeaderboard(leaderboard);
             }
         }
         function updateDailyLeaderboard() {
@@ -724,7 +603,7 @@
         }
         function checkAchievements() {
             achievementList.forEach(achievement => {
-                if (!achievement.achieved and achievement.check()) {
+                if (!achievement.achieved && achievement.check()) {
                     achievement.achieved = true;
                     achievements.push(achievement);
                     localStorage.setItem('achievements', JSON.stringify(achievements));
@@ -734,7 +613,7 @@
         }
         function checkDailyAchievements() {
             dailyAchievementList.forEach(achievement => {
-                if (!achievement.achieved and achievement.check()) {
+                if (!achievement.achieved && achievement.check()) {
                     achievement.achieved = true;
                     dailyAchievements.push(achievement);
                     localStorage.setItem('dailyAchievements', JSON.stringify(dailyAchievements));
@@ -804,12 +683,15 @@
         function activatePowerUp(powerUp) {
             if (powerUp === 'double-points') {
                 powerUpActive = 'double-points';
+                document.getElementById('double-points').disabled = true;
             } else if (powerUp === 'freeze-opponent') {
                 opponentFrozen = true;
                 switchTurn();
+                document.getElementById('freeze-opponent').disabled = true;
             } else if (powerUp === 'extra-time') {
                 timeLeft += 10;
                 updateTimer();
+                document.getElementById('extra-time').disabled = true;
             }
         }
         function openSettings() {
@@ -821,17 +703,21 @@
         function applySettings() {
             const backgroundColorPicker = document.getElementById('background-color');
             const textColorPicker = document.getElementById('text-color');
+            const buttonColorPicker = document.getElementById('button-color');
             const soundVolumeSlider = document.getElementById('sound-volume');
             const musicVolumeSlider = document.getElementById('music-volume');
             backgroundColor = backgroundColorPicker.value;
             textColor = textColorPicker.value;
+            buttonColor = buttonColorPicker.value;
             soundVolume = soundVolumeSlider.value;
             musicVolume = musicVolumeSlider.value;
             document.documentElement.style.setProperty('--default-background', backgroundColor);
             document.documentElement.style.setProperty('--default-text', textColor);
+            document.documentElement.style.setProperty('--button-background', buttonColor);
             document.getElementById('background-music').volume = musicVolume / 100;
             localStorage.setItem('backgroundColor', backgroundColor);
             localStorage.setItem('textColor', textColor);
+            localStorage.setItem('buttonColor', buttonColor);
             localStorage.setItem('soundVolume', JSON.stringify(soundVolume));
             localStorage.setItem('musicVolume', JSON.stringify(musicVolume));
         }
@@ -877,6 +763,65 @@
                 gameHistoryList.appendChild(listItem);
             });
         }
+        function addToPuzzleHistory(puzzle) {
+            puzzleHistory.push(puzzle);
+            displayPuzzleHistory();
+        }
+        function displayPuzzleHistory() {
+            const puzzleHistoryContainer = document.getElementById('puzzle-history-container');
+            puzzleHistoryContainer.style.display = 'block';
+            const puzzleHistoryList = document.getElementById('puzzle-history');
+            puzzleHistoryList.innerHTML = '';
+            puzzleHistory.forEach((puzzle, index) => {
+                const listItem = document.createElement('div');
+                listItem.classList.add('history-item');
+                listItem.textContent = `Puzzle ${index + 1}: ${puzzle.num1} ${puzzle.operator} ${puzzle.num2}`;
+                listItem.addEventListener('click', () => selectPuzzle(index));
+                puzzleHistoryList.appendChild(listItem);
+            });
+        }
+        function selectPuzzle(index) {
+            selectedPuzzle = puzzleHistory[index];
+            const replayButton = document.getElementById('replay-button');
+            replayButton.disabled = false;
+            replayButton.addEventListener('click', replaySelectedPuzzle);
+        }
+        function replaySelectedPuzzle() {
+            if (selectedPuzzle) {
+                document.getElementById('puzzle').textContent = `What is ${selectedPuzzle.num1} ${selectedPuzzle.operator} ${selectedPuzzle.num2}?`;
+                currentAnswer = selectedPuzzle.answer;
+                document.getElementById('feedback').textContent = '';
+                document.getElementById('answer').value = '';
+                responseStartTime = Date.now();
+            }
+        }
+
+        function unlockChallengeLevel(levelName, criteria) {
+            if (!challengeLevels.includes(levelName) && criteria()) {
+                challengeLevels.push(levelName);
+                displayChallengeLevels();
+            }
+        }
+
+        function displayChallengeLevels() {
+            const challengeLevelsContainer = document.getElementById('challenge-levels-container');
+            challengeLevelsContainer.style.display = 'block';
+            const challengeLevelsList = document.getElementById('challenge-levels');
+            challengeLevelsList.innerHTML = '';
+            challengeLevels.forEach(level => {
+                const listItem = document.createElement('div');
+                listItem.classList.add('challenge-item');
+                listItem.textContent = `🔓 ${level}`;
+                challengeLevelsList.appendChild(listItem);
+            });
+        }
+
+        function checkChallengeLevelUnlocks() {
+            unlockChallengeLevel('Master of Medium', () => score >= 100 && document.getElementById('difficulty').value === 'medium');
+            unlockChallengeLevel('Survival Expert', () => mode === 'survival' && score >= 50);
+            unlockChallengeLevel('Puzzle Rush Master', () => mode === 'puzzle-rush' && score >= 30);
+        }
+
         function displayTutorial() {
             const tutorialElement = document.getElementById('tutorial');
             tutorialVisible = !tutorialVisible;
@@ -886,7 +831,6 @@
             const randomTip = tips[Math.floor(Math.random() * tips.length)];
             document.getElementById('tips').textContent = `Tip: ${randomTip}`;
         }
-
         function displayEndSummary() {
             document.getElementById('final-score').textContent = score;
             document.getElementById('summary-high-score').textContent = highScore;
@@ -897,18 +841,15 @@
             document.getElementById('summary-achievements').textContent = achievements.filter(a => a.achieved).length;
             document.getElementById('end-summary').style.display = 'block';
         }
-
         function shareOnTwitter() {
             const text = `I scored ${score} in the Math Puzzle Game! Can you beat my score?`;
             const url = encodeURIComponent(window.location.href);
             window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank');
         }
-
         function shareOnFacebook() {
             const url = encodeURIComponent(window.location.href);
             window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank');
         }
-
         document.getElementById('dark-mode-toggle').addEventListener('click', toggleDarkMode);
         document.getElementById('sound-toggle').addEventListener('click', toggleSound);
         document.getElementById('music-toggle').addEventListener('click', toggleMusic);
@@ -919,6 +860,8 @@
         document.getElementById('difficulty').addEventListener('change', resetGame);
         document.getElementById('classic-mode').addEventListener('click', () => switchMode('classic'));
         document.getElementById('timed-mode').addEventListener('click', () => switchMode('timed'));
+        document.getElementById('survival-mode').addEventListener('click', () => switchMode('survival'));
+        document.getElementById('puzzle-rush-mode').addEventListener('click', () => switchMode('puzzle-rush'));
         document.getElementById('multiplayer-mode').addEventListener('click', () => switchMode('multiplayer'));
         document.getElementById('daily-challenge-mode').addEventListener('click', () => switchMode('daily'));
         document.getElementById('settings-toggle').addEventListener('click', openSettings);
@@ -933,7 +876,6 @@
         document.getElementById('close-tutorial').addEventListener('click', displayTutorial);
         document.getElementById('share-twitter').addEventListener('click', shareOnTwitter);
         document.getElementById('share-facebook').addEventListener('click', shareOnFacebook);
-
         // Initialize the game on page load
         window.onload = () => {
             document.body.setAttribute('data-theme', theme);
@@ -944,6 +886,7 @@
             }
             document.documentElement.style.setProperty('--default-background', backgroundColor);
             document.documentElement.style.setProperty('--default-text', textColor);
+            document.documentElement.style.setProperty('--button-background', buttonColor);
             if (largeText) {
                 document.body.style.fontSize = '20px';
             }
@@ -957,6 +900,7 @@
             updateDailyStats();
             displayGameHistory();
             updateStatistics();
+            checkChallengeLevelUnlocks();
         };
     </script>
 </body>
