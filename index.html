@@ -317,6 +317,8 @@
             <div id="mode-selection">
                 <button id="classic-mode">Classic Mode</button>
                 <button id="timed-mode">Timed Challenges</button>
+                <button id="survival-mode">Survival Mode</button>
+                <button id="puzzle-rush-mode">Puzzle Rush</button>
                 <button id="multiplayer-mode">Multiplayer Mode</button>
                 <button id="daily-challenge-mode">Daily Challenge</button>
             </div>
@@ -367,6 +369,8 @@
                     <input type="color" id="background-color">
                     <label for="text-color">Text Color:</label>
                     <input type="color" id="text-color">
+                    <label for="button-color">Button Color:</label>
+                    <input type="color" id="button-color">
                     <label for="sound-volume">Sound Volume:</label>
                     <input type="range" id="sound-volume" min="0" max="100">
                     <label for="music-volume">Music Volume:</label>
@@ -464,6 +468,7 @@
         let musicVolume = JSON.parse(localStorage.getItem('musicVolume')) || 50;
         let backgroundColor = localStorage.getItem('backgroundColor') || '#f4f4f4';
         let textColor = localStorage.getItem('textColor') || '#333';
+        let buttonColor = localStorage.getItem('buttonColor') || '#4CAF50';
         let largeText = JSON.parse(localStorage.getItem('largeText')) || false;
         let highContrastMode = JSON.parse(localStorage.getItem('highContrastMode')) || false;
         let mode = 'classic';
@@ -485,14 +490,14 @@
 
         const achievementList = [
             { id: 1, name: 'Score 50 Points on Easy', achieved: false, difficulty: 'easy', check: () => score >= 50 && document.getElementById('difficulty').value === 'easy' },
-            { id: 2, name: 'High Streak of 10 on Easy', achieved: false, difficulty: 'easy', check: () => streak >= 10 and document.getElementById('difficulty').value === 'easy' },
-            { id: 3, name: 'Score 50 Points on Medium', achieved: false, difficulty: 'medium', check: () => score >= 50 and document.getElementById('difficulty').value === 'medium' },
-            { id: 4, name: 'High Streak of 10 on Medium', achieved: false, difficulty: 'medium', check: () => streak >= 10 and document.getElementById('difficulty').value === 'medium' },
-            { id: 5, name: 'Score 50 Points on Hard', achieved: false, difficulty: 'hard', check: () => score >= 50 and document.getElementById('difficulty').value === 'hard' },
-            { id: 6, name: 'High Streak of 10 on Hard', achieved: false, difficulty: 'hard', check: () => streak >= 10 and document.getElementById('difficulty').value === 'hard' },
-            { id: 7, name: 'Finish a Game Without Hints on Any Difficulty', achieved: false, check: () => streak > 0 and score > 0 and !hintUsedThisGame },
-            { id: 8, name: 'Score 100 Points in Timed Challenges', achieved: false, check: () => score >= 100 and mode === 'timed' },
-            { id: 9, name: 'Solve 10 Puzzles in Timed Challenges', achieved: false, check: () => streak >= 10 and mode === 'timed' }
+            { id: 2, name: 'High Streak of 10 on Easy', achieved: false, difficulty: 'easy', check: () => streak >= 10 && document.getElementById('difficulty').value === 'easy' },
+            { id: 3, name: 'Score 50 Points on Medium', achieved: false, difficulty: 'medium', check: () => score >= 50 && document.getElementById('difficulty').value === 'medium' },
+            { id: 4, name: 'High Streak of 10 on Medium', achieved: false, difficulty: 'medium', check: () => streak >= 10 && document.getElementById('difficulty').value === 'medium' },
+            { id: 5, name: 'Score 50 Points on Hard', achieved: false, difficulty: 'hard', check: () => score >= 50 && document.getElementById('difficulty').value === 'hard' },
+            { id: 6, name: 'High Streak of 10 on Hard', achieved: false, difficulty: 'hard', check: () => streak >= 10 && document.getElementById('difficulty').value === 'hard' },
+            { id: 7, name: 'Finish a Game Without Hints on Any Difficulty', achieved: false, check: () => streak > 0 && score > 0 && !hintUsedThisGame },
+            { id: 8, name: 'Score 100 Points in Timed Challenges', achieved: false, check: () => score >= 100 && mode === 'timed' },
+            { id: 9, name: 'Solve 10 Puzzles in Timed Challenges', achieved: false, check: () => streak >= 10 && mode === 'timed' }
         ];
 
         const dailyAchievementList = [
@@ -519,6 +524,10 @@
                 timeLeft = 60;
             } else if (mode === 'daily') {
                 timeLeft = 90; // Daily challenges have 90 seconds
+            } else if (mode === 'survival') {
+                timeLeft = 30; // Survival mode starts with 30 seconds
+            } else if (mode === 'puzzle-rush') {
+                timeLeft = 10; // Puzzle Rush mode starts with 10 seconds per puzzle
             } else {
                 timeLeft = 120; // Multiplayer mode has 2 minutes total for the game
             }
@@ -609,6 +618,10 @@
                 totalPuzzles++;
                 totalResponseTime += responseTime;
 
+                if (mode === 'survival') {
+                    timeLeft += 5; // Add 5 seconds for each correct answer in Survival Mode
+                }
+
                 if (soundEnabled) {
                     correctSound.volume = soundVolume / 100;
                     correctSound.play();
@@ -651,6 +664,10 @@
             localStorage.setItem('correctAnswers', JSON.stringify(correctAnswers));
             localStorage.setItem('incorrectAnswers', JSON.stringify(incorrectAnswers));
             localStorage.setItem('totalResponseTime', JSON.stringify(totalResponseTime));
+
+            if (mode === 'puzzle-rush' && timeLeft <= 0) {
+                endGame();
+            }
         }
 
         function getBonusPoints() {
@@ -662,10 +679,10 @@
             if (mode === 'classic' && score > highScore) {
                 highScore = score;
                 document.getElementById('high-score').textContent = `High Score: ${highScore}`;
-            } else if (mode === 'timed' and score > highScore) {
+            } else if (mode === 'timed' && score > highScore) {
                 highScore = score;
                 document.getElementById('high-score').textContent = `High Score: ${highScore}`;
-            } else if (mode === 'daily' and score > highScore) {
+            } else if (mode === 'daily' && score > highScore) {
                 highScore = score;
                 document.getElementById('high-score').textContent = `High Score: ${highScore}`;
             }
@@ -691,10 +708,10 @@
         }
 
         function updateProgressBar() {
-            const initialTime = mode === 'classic' ? 
+            const initialTime = mode === 'classic' ?
                 (document.getElementById('difficulty').value === 'easy' ? 45 :
-                document.getElementById('difficulty').value === 'medium' ? 30 : 20) :
-                (mode === 'timed' ? 60 : mode === 'daily' ? 90 : 120);
+                    document.getElementById('difficulty').value === 'medium' ? 30 : 20) :
+                (mode === 'timed' ? 60 : mode === 'daily' ? 90 : mode === 'survival' ? 30 : 10);
             const progressBar = document.getElementById('progress-bar');
             progressBar.style.width = `${(timeLeft / initialTime) * 100}%`;
         }
@@ -720,6 +737,10 @@
                 localStorage.setItem('dailyChallengeCompleted', JSON.stringify(dailyChallengeCompleted));
                 updateDailyLeaderboard();
                 checkDailyAchievements();
+            } else if (mode === 'survival') {
+                endMessage = `Survival Mode Over! Your final score is ${score}.`;
+            } else if (mode === 'puzzle-rush') {
+                endMessage = `Puzzle Rush Over! Your final score is ${score}.`;
             }
 
             document.getElementById('feedback').textContent = endMessage;
@@ -776,6 +797,18 @@
                 dailyLeaderboard = dailyLeaderboard.slice(0, 5);
                 localStorage.setItem('dailyLeaderboard', JSON.stringify(dailyLeaderboard));
                 displayLeaderboard(dailyLeaderboard);
+            } else if (mode === 'survival') {
+                leaderboard.push(score);
+                leaderboard.sort((a, b) => b - a);
+                leaderboard = leaderboard.slice(0, 5);
+                localStorage.setItem('survivalLeaderboard', JSON.stringify(leaderboard));
+                displayLeaderboard(leaderboard);
+            } else if (mode === 'puzzle-rush') {
+                leaderboard.push(score);
+                leaderboard.sort((a, b) => b - a);
+                leaderboard = leaderboard.slice(0, 5);
+                localStorage.setItem('puzzleRushLeaderboard', JSON.stringify(leaderboard));
+                displayLeaderboard(leaderboard);
             }
         }
 
@@ -799,7 +832,7 @@
 
         function checkAchievements() {
             achievementList.forEach(achievement => {
-                if (!achievement.achieved and achievement.check()) {
+                if (!achievement.achieved && achievement.check()) {
                     achievement.achieved = true;
                     achievements.push(achievement);
                     localStorage.setItem('achievements', JSON.stringify(achievements));
@@ -810,7 +843,7 @@
 
         function checkDailyAchievements() {
             dailyAchievementList.forEach(achievement => {
-                if (!achievement.achieved and achievement.check()) {
+                if (!achievement.achieved && achievement.check()) {
                     achievement.achieved = true;
                     dailyAchievements.push(achievement);
                     localStorage.setItem('dailyAchievements', JSON.stringify(dailyAchievements));
@@ -910,20 +943,24 @@
         function applySettings() {
             const backgroundColorPicker = document.getElementById('background-color');
             const textColorPicker = document.getElementById('text-color');
+            const buttonColorPicker = document.getElementById('button-color');
             const soundVolumeSlider = document.getElementById('sound-volume');
             const musicVolumeSlider = document.getElementById('music-volume');
 
             backgroundColor = backgroundColorPicker.value;
             textColor = textColorPicker.value;
+            buttonColor = buttonColorPicker.value;
             soundVolume = soundVolumeSlider.value;
             musicVolume = musicVolumeSlider.value;
 
             document.documentElement.style.setProperty('--default-background', backgroundColor);
             document.documentElement.style.setProperty('--default-text', textColor);
+            document.documentElement.style.setProperty('--button-background', buttonColor);
             document.getElementById('background-music').volume = musicVolume / 100;
 
             localStorage.setItem('backgroundColor', backgroundColor);
             localStorage.setItem('textColor', textColor);
+            localStorage.setItem('buttonColor', buttonColor);
             localStorage.setItem('soundVolume', JSON.stringify(soundVolume));
             localStorage.setItem('musicVolume', JSON.stringify(musicVolume));
         }
@@ -1018,6 +1055,8 @@
         document.getElementById('difficulty').addEventListener('change', resetGame);
         document.getElementById('classic-mode').addEventListener('click', () => switchMode('classic'));
         document.getElementById('timed-mode').addEventListener('click', () => switchMode('timed'));
+        document.getElementById('survival-mode').addEventListener('click', () => switchMode('survival'));
+        document.getElementById('puzzle-rush-mode').addEventListener('click', () => switchMode('puzzle-rush'));
         document.getElementById('multiplayer-mode').addEventListener('click', () => switchMode('multiplayer'));
         document.getElementById('daily-challenge-mode').addEventListener('click', () => switchMode('daily'));
         document.getElementById('settings-toggle').addEventListener('click', openSettings);
@@ -1043,6 +1082,7 @@
             }
             document.documentElement.style.setProperty('--default-background', backgroundColor);
             document.documentElement.style.setProperty('--default-text', textColor);
+            document.documentElement.style.setProperty('--button-background', buttonColor);
             if (largeText) {
                 document.body.style.fontSize = '20px';
             }
