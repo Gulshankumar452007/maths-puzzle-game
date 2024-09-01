@@ -207,6 +207,7 @@
         }
 
         #multiplayer-chat {
+        #advanced-stats {
             margin-top: 20px;
             text-align: center;
             display: none;
@@ -249,6 +250,7 @@
         }
 
         #invite-container h3 {
+        #advanced-stats h2 {
             margin-bottom: 10px;
         }
 
@@ -256,12 +258,19 @@
             font-weight: bold;
             font-size: 20px;
             margin-bottom: 10px;
+        #advanced-stats ul {
+            list-style-type: none;
+            padding: 0;
         }
 
         #join-invite input[type="text"] {
             padding: 10px;
             width: 80%;
             border: 1px solid #ccc;
+        #advanced-stats li {
+            background-color: #e1e1e1;
+            margin-bottom: 5px;
+            padding: 5px;
             border-radius: 5px;
             margin-bottom: 10px;
         }
@@ -361,6 +370,16 @@
                 <div id="join-invite">
                     <input type="text" id="invite-code-input" placeholder="Enter game code to join">
                     <button id="join-invite-button">Join Game</button>
+                <div id="settings-menu">
+                    <label for="background-color">Background Color:</label>
+                    <input type="color" id="background-color">
+                    <label for="text-color">Text Color:</label>
+                    <input type="color" id="text-color">
+                    <label for="sound-volume">Sound Volume:</label>
+                    <input type="range" id="sound-volume" min="0" max="100">
+                    <label for="music-volume">Music Volume:</label>
+                    <input type="range" id="music-volume" min="0" max="100">
+                    <button id="close-settings">Close Settings</button>
                 </div>
             </div>
             <div id="multiplayer-chat">
@@ -369,11 +388,34 @@
                 <div id="chat-input">
                     <input type="text" id="chat-message" placeholder="Type a message...">
                     <button id="send-chat">Send</button>
+                <div id="theme-selection">
+                    <label for="theme">Choose Theme:</label>
+                    <select id="theme">
+                        <option value="light" selected>Light</option>
+                        <option value="dark">Dark</option>
+                        <option value="blue">Blue</option>
+                        <option value="high-contrast">High Contrast</option>
+                    </select>
+                </div>
+                <div id="accessibility-options">
+                    <label for="large-text">Large Text</label>
+                    <input type="checkbox" id="large-text">
+                    <label for="high-contrast-mode">High Contrast Mode</label>
+                    <input type="checkbox" id="high-contrast-mode">
+                </div>
+                <div id="advanced-stats">
+                    <h2>Advanced Statistics</h2>
+                    <ul>
+                        <li>Total Puzzles Solved: <span id="total-puzzles">0</span></li>
+                        <li>Correct Answers: <span id="correct-answers">0</span></li>
+                        <li>Incorrect Answers: <span id="incorrect-answers">0</span></li>
+                        <li>Accuracy: <span id="accuracy">0%</span></li>
+                        <li>Average Response Time: <span id="average-time">0s</span></li>
+                    </ul>
                 </div>
             </div>
         </div>
     </main>
-
     <audio id="correct-sound" src="https://www.soundjay.com/button/beep-07.wav"></audio>
     <audio id="incorrect-sound" src="https://www.soundjay.com/button/beep-10.wav"></audio>
     <audio id="background-music" src="https://www.bensound.com/bensound-music/bensound-dreams.mp3" loop></audio>
@@ -386,6 +428,11 @@
         let streak = 0;
         let timeLeft;
         let timerInterval;
+        let totalPuzzles = JSON.parse(localStorage.getItem('totalPuzzles')) || 0;
+        let correctAnswers = JSON.parse(localStorage.getItem('correctAnswers')) || 0;
+        let incorrectAnswers = JSON.parse(localStorage.getItem('incorrectAnswers')) || 0;
+        let totalResponseTime = JSON.parse(localStorage.getItem('totalResponseTime')) || 0;
+        let responseStartTime;
         let leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
         let timedLeaderboard = JSON.parse(localStorage.getItem('timedLeaderboard')) || [];
         let dailyLeaderboard = JSON.parse(localStorage.getItem('dailyLeaderboard')) || [];
@@ -421,7 +468,11 @@
             { id: 7, name: 'Finish a Game Without Hints on Any Difficulty', achieved: false, check: () => streak > 0 && score > 0 && !hintUsedThisGame },
             { id: 8, name: 'Score 100 Points in Timed Challenges', achieved: false, check: () => score >= 100 && mode === 'timed' },
             { id: 9, name: 'Solve 10 Puzzles in Timed Challenges', achieved: false, check: () => streak >= 10 && mode === 'timed' }
+            { id: 7, name: 'Finish a Game Without Hints on Any Difficulty', achieved: false, check: () => streak > 0 and score > 0 and !hintUsedThisGame },
+            { id: 8, name: 'Score 100 Points in Timed Challenges', achieved: false, check: () => score >= 100 and mode === 'timed' },
+            { id: 9, name: 'Solve 10 Puzzles in Timed Challenges', achieved: false, check: () => streak >= 10 and mode === 'timed' }
         ];
+
         const dailyAchievementList = [
             { id: 1, name: 'Complete 1 Daily Challenge', achieved: false, check: () => dailyChallengeCompleted },
             { id: 2, name: 'Complete 5 Daily Challenges', achieved: false, check: () => dailyAchievements.length >= 5 },
@@ -483,7 +534,9 @@
             document.getElementById('hint').textContent = '';
             document.getElementById('feedback').textContent = '';
             document.getElementById('answer').value = '';
+            responseStartTime = Date.now();
         }
+
         function provideHint() {
             let hintMessage = '';
             if (score > 0) {
@@ -507,6 +560,8 @@
             const feedbackElement = document.getElementById('feedback');
             const correctSound = document.getElementById('correct-sound');
             const incorrectSound = document.getElementById('incorrect-sound');
+            const responseTime = (Date.now() - responseStartTime) / 1000;
+
             if (userAnswer === currentAnswer) {
                 let pointsGained = 2 + getBonusPoints();
                 if (powerUpActive === 'double-points') {
@@ -518,14 +573,20 @@
                 feedbackElement.classList.remove('incorrect');
                 streak++;
                 score += pointsGained;
+                correctAnswers++;
+                totalPuzzles++;
+                totalResponseTime += responseTime;
+
                 if (soundEnabled) {
                     correctSound.volume = soundVolume / 100;
                     correctSound.play();
                 }
                 updateScore();
                 updateStreak();
+                updateStatistics();
                 checkAchievements();
                 generatePuzzle();
+
                 if (mode === 'multiplayer') {
                     playerScores[playerTurn - 1] += pointsGained;
                     updatePlayerScores();
@@ -540,16 +601,26 @@
                 feedbackElement.classList.add('incorrect');
                 feedbackElement.classList.remove('correct');
                 streak = 0;
+                incorrectAnswers++;
+                totalPuzzles++;
+
                 if (soundEnabled) {
                     incorrectSound.volume = soundVolume / 100;
                     incorrectSound.play();
                 }
                 updateStreak();
+                updateStatistics();
+
                 if (mode === 'multiplayer') {
                     switchTurn();
                 }
             }
+            localStorage.setItem('totalPuzzles', JSON.stringify(totalPuzzles));
+            localStorage.setItem('correctAnswers', JSON.stringify(correctAnswers));
+            localStorage.setItem('incorrectAnswers', JSON.stringify(incorrectAnswers));
+            localStorage.setItem('totalResponseTime', JSON.stringify(totalResponseTime));
         }
+
         function getBonusPoints() {
             return streak >= 3 ? Math.floor(streak / 3) : 0;
         }
@@ -559,9 +630,11 @@
                 highScore = score;
                 document.getElementById('high-score').textContent = `High Score: ${highScore}`;
             } else if (mode === 'timed' && score > highScore) {
+            } else if (mode === 'timed' and score > highScore) {
                 highScore = score;
                 document.getElementById('high-score').textContent = `High Score: ${highScore}`;
             } else if (mode === 'daily' && score > highScore) {
+            } else if (mode === 'daily' and score > highScore) {
                 highScore = score;
                 document.getElementById('high-score').textContent = `High Score: ${highScore}`;
             }
@@ -715,6 +788,18 @@
                 dailyAchievementListElement.appendChild(listItem);
             });
         }
+
+        function updateStatistics() {
+            const accuracy = correctAnswers > 0 ? ((correctAnswers / totalPuzzles) * 100).toFixed(2) : 0;
+            const averageTime = totalPuzzles > 0 ? (totalResponseTime / totalPuzzles).toFixed(2) : 0;
+
+            document.getElementById('total-puzzles').textContent = totalPuzzles;
+            document.getElementById('correct-answers').textContent = correctAnswers;
+            document.getElementById('incorrect-answers').textContent = incorrectAnswers;
+            document.getElementById('accuracy').textContent = `${accuracy}%`;
+            document.getElementById('average-time').textContent = `${averageTime}s`;
+        }
+
         function toggleDarkMode() {
             const newTheme = theme === 'light' ? 'dark' : 'light';
             document.body.setAttribute('data-theme', newTheme);
@@ -823,15 +908,18 @@
                 gameHistoryList.appendChild(listItem);
             });
         }
+
         function applyTheme() {
             const selectedTheme = document.getElementById('theme').value;
             document.body.setAttribute('data-theme', selectedTheme);
             localStorage.setItem('theme', selectedTheme);
             theme = selectedTheme;
         }
+
         function applyAccessibilityOptions() {
             largeText = document.getElementById('large-text').checked;
             highContrastMode = document.getElementById('high-contrast-mode').checked;
+
             if (largeText) {
                 document.body.style.fontSize = '20px';
                 document.documentElement.style.setProperty('--default-font-size', '20px');
@@ -839,11 +927,13 @@
                 document.body.style.fontSize = '16px';
                 document.documentElement.style.setProperty('--default-font-size', '16px');
             }
+
             if (highContrastMode) {
                 document.body.setAttribute('data-theme', 'high-contrast');
             } else {
                 document.body.setAttribute('data-theme', theme);
             }
+
             localStorage.setItem('largeText', JSON.stringify(largeText));
             localStorage.setItem('highContrastMode', JSON.stringify(highContrastMode));
         }
@@ -888,13 +978,13 @@
         document.getElementById('difficulty').addEventListener('change', resetGame);
         document.getElementById('classic-mode').addEventListener('click', () => switchMode('classic'));
         document.getElementById('timed-mode').addEventListener('click', () => switchMode('timed'));
-        document.getElementById('multiplayer-mode').addEventListener('click', () => switchMode('multiplayer'));
         document.getElementById('multiplayer-mode').addEventListener('click', () => {
             switchMode('multiplayer');
             document.getElementById('multiplayer-chat').style.display = 'block';
             document.getElementById('invite-container').style.display = 'block';
             generateInviteCode();
         });
+        document.getElementById('multiplayer-mode').addEventListener('click', () => switchMode('multiplayer'));
         document.getElementById('daily-challenge-mode').addEventListener('click', () => switchMode('daily'));
         document.getElementById('settings-toggle').addEventListener('click', openSettings);
         document.getElementById('close-settings').addEventListener('click', () => {
@@ -929,7 +1019,8 @@
             startDailyChallenge();
             updateDailyStats();
             displayGameHistory();
+            updateStatistics();
         };
     </script>
 </body>
-</html>
+            </html>
