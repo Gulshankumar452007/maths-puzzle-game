@@ -261,6 +261,51 @@
             color: #888;
         }
 
+        #end-summary {
+            display: none;
+            margin-top: 20px;
+            text-align: center;
+            background-color: #f9f9f9;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        #end-summary ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        #end-summary li {
+            margin-bottom: 10px;
+            padding: 5px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        #share-buttons {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .share-button {
+            background-color: #1da1f2;
+            color: white;
+            border: none;
+            padding: 10px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .share-button.fb {
+            background-color: #3b5998;
+        }
+
+        .share-button:hover {
+            opacity: 0.8;
+        }
+
     </style>
 </head>
 <body data-theme="light">
@@ -368,6 +413,22 @@
                 </div>
                 <div id="tips">
                     <!-- Tips will be displayed here -->
+                </div>
+                <div id="end-summary">
+                    <h2>Game Summary</h2>
+                    <ul>
+                        <li>Final Score: <span id="final-score">0</span></li>
+                        <li>High Score: <span id="summary-high-score">0</span></li>
+                        <li>Correct Answers: <span id="summary-correct-answers">0</span></li>
+                        <li>Incorrect Answers: <span id="summary-incorrect-answers">0</span></li>
+                        <li>Accuracy: <span id="summary-accuracy">0%</span></li>
+                        <li>Average Response Time: <span id="summary-average-time">0s</span></li>
+                        <li>Achievements Unlocked: <span id="summary-achievements">0</span></li>
+                    </ul>
+                    <div id="share-buttons">
+                        <button class="share-button" id="share-twitter">Share on Twitter</button>
+                        <button class="share-button fb" id="share-facebook">Share on Facebook</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -672,6 +733,7 @@
             checkAchievements();
             saveGameHistory();
             hintUsedThisGame = false;
+            displayEndSummary();
         }
 
         function resetGame() {
@@ -924,6 +986,28 @@
             document.getElementById('tips').textContent = `Tip: ${randomTip}`;
         }
 
+        function displayEndSummary() {
+            document.getElementById('final-score').textContent = score;
+            document.getElementById('summary-high-score').textContent = highScore;
+            document.getElementById('summary-correct-answers').textContent = correctAnswers;
+            document.getElementById('summary-incorrect-answers').textContent = incorrectAnswers;
+            document.getElementById('summary-accuracy').textContent = `${((correctAnswers / totalPuzzles) * 100).toFixed(2)}%`;
+            document.getElementById('summary-average-time').textContent = `${(totalResponseTime / totalPuzzles).toFixed(2)}s`;
+            document.getElementById('summary-achievements').textContent = achievements.filter(a => a.achieved).length;
+            document.getElementById('end-summary').style.display = 'block';
+        }
+
+        function shareOnTwitter() {
+            const text = `I scored ${score} in the Math Puzzle Game! Can you beat my score?`;
+            const url = encodeURIComponent(window.location.href);
+            window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank');
+        }
+
+        function shareOnFacebook() {
+            const url = encodeURIComponent(window.location.href);
+            window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank');
+        }
+
         document.getElementById('dark-mode-toggle').addEventListener('click', toggleDarkMode);
         document.getElementById('sound-toggle').addEventListener('click', toggleSound);
         document.getElementById('music-toggle').addEventListener('click', toggleMusic);
@@ -946,6 +1030,8 @@
         document.getElementById('high-contrast-mode').addEventListener('change', applyAccessibilityOptions);
         document.getElementById('tutorial-toggle').addEventListener('click', displayTutorial);
         document.getElementById('close-tutorial').addEventListener('click', displayTutorial);
+        document.getElementById('share-twitter').addEventListener('click', shareOnTwitter);
+        document.getElementById('share-facebook').addEventListener('click', shareOnFacebook);
 
         // Initialize the game on page load
         window.onload = () => {
