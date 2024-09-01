@@ -7,58 +7,44 @@
     <style>
         /* Previous styles omitted for brevity */
 
-        #customization-menu {
-            margin-top: 20px;
-            background-color: #f0f0f0;
-            border-radius: 5px;
-            padding: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            width: 350px;
-            display: none;
-        }
-
-        #theme-editor {
-            margin-top: 20px;
-            background-color: #f0f0f0;
-            border-radius: 5px;
-            padding: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            width: 350px;
-            display: none;
-        }
-
-        #theme-saver {
+        #currency-display {
             margin-top: 10px;
+            font-size: 1.2em;
+            color: #FFD700;
             display: flex;
             justify-content: space-between;
         }
 
-        #save-theme {
+        #power-ups-container {
+            margin-top: 20px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+            padding: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            display: none;
+        }
+
+        .power-up {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .power-up button {
             background-color: #4CAF50;
             color: white;
             border: none;
-            padding: 10px;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        #apply-theme {
-            background-color: #2196F3;
-            color: white;
-            border: none;
-            padding: 10px;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        #customization-menu select,
-        #theme-editor input[type="color"],
-        #theme-editor input[type="text"] {
-            width: 100%;
             padding: 5px;
-            margin: 5px 0;
             border-radius: 5px;
-            border: 1px solid #ccc;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+
+        .power-up button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
         }
 
     </style>
@@ -101,8 +87,13 @@
                 <button id="settings-toggle">Settings</button>
                 <button id="customization-toggle">Puzzle Customization</button>
                 <button id="theme-editor-toggle">Theme Editor</button>
+                <button id="power-ups-toggle">Power-Ups</button>
                 <button id="tutorial-toggle">Show Tutorial</button>
                 <button id="help-toggle">Help</button>
+                <div id="currency-display">
+                    <span>Coins: <span id="coins">0</span></span>
+                    <button id="earn-coins-button">Earn More Coins</button>
+                </div>
                 <div id="feedback"></div>
                 <div id="score" class="animated-score">Score: 0</div>
                 <div id="high-score">High Score: 0</div>
@@ -208,6 +199,21 @@
                         <button id="apply-theme">Apply Theme</button>
                     </div>
                 </div>
+                <div id="power-ups-container">
+                    <h3>Power-Ups</h3>
+                    <div class="power-up">
+                        <span>Double Points (5 coins)</span>
+                        <button id="buy-double-points">Buy</button>
+                    </div>
+                    <div class="power-up">
+                        <span>Freeze Opponent (10 coins)</span>
+                        <button id="buy-freeze-opponent">Buy</button>
+                    </div>
+                    <div class="power-up">
+                        <span>Extra Time (8 coins)</span>
+                        <button id="buy-extra-time">Buy</button>
+                    </div>
+                </div>
                 <div id="theme-selection">
                     <label for="theme">Choose Theme:</label>
                     <select id="theme">
@@ -282,6 +288,7 @@
         let streak = 0;
         let timeLeft;
         let timerInterval;
+        let coins = JSON.parse(localStorage.getItem('coins')) || 0;
         let totalPuzzles = JSON.parse(localStorage.getItem('totalPuzzles')) || 0;
         let correctAnswers = JSON.parse(localStorage.getItem('correctAnswers')) || 0;
         let incorrectAnswers = JSON.parse(localStorage.getItem('incorrectAnswers')) || 0;
@@ -339,9 +346,9 @@
             { id: 4, name: 'High Streak of 10 on Medium', achieved: false, difficulty: 'medium', check: () => streak >= 10 && document.getElementById('difficulty').value === 'medium' },
             { id: 5, name: 'Score 50 Points on Hard', achieved: false, difficulty: 'hard', check: () => score >= 50 && document.getElementById('difficulty').value === 'hard' },
             { id: 6, name: 'High Streak of 10 on Hard', achieved: false, difficulty: 'hard', check: () => streak >= 10 && document.getElementById('difficulty').value === 'hard' },
-            { id: 7, name: 'Finish a Game Without Hints on Any Difficulty', achieved: false, check: () => streak > 0 && score > 0 && !hintUsedThisGame },
-            { id: 8, name: 'Score 100 Points in Timed Challenges', achieved: false, check: () => score >= 100 && mode === 'timed' },
-            { id: 9, name: 'Solve 10 Puzzles in Timed Challenges', achieved: false, check: () => streak >= 10 && mode === 'timed' }
+            { id: 7, name: 'Finish a Game Without Hints on Any Difficulty', achieved: false, check: () => streak > 0 && score > 0 and !hintUsedThisGame },
+            { id: 8, name: 'Score 100 Points in Timed Challenges', achieved: false, check: () => score >= 100 and mode === 'timed' },
+            { id: 9, name: 'Solve 10 Puzzles in Timed Challenges', achieved: false, check: () => streak >= 10 and mode === 'timed' }
         ];
 
         const dailyAchievementList = [
@@ -356,7 +363,7 @@
         let selectedPuzzleType = 'all'; // Default to all puzzle types
 
         function setInitialTime() {
-            if (mode === 'classic' || mode === 'adaptive') {
+            if (mode === 'classic' or mode === 'adaptive') {
                 const difficulty = document.getElementById('difficulty').value;
                 if (difficulty === 'easy') {
                     timeLeft = 45;
@@ -387,7 +394,7 @@
         function adaptiveTimeBasedOnPerformance() {
             // Adjust time based on player's accuracy and streak
             const accuracy = correctAnswers > 0 ? (correctAnswers / totalPuzzles) * 100 : 0;
-            if (accuracy > 80 && streak >= 5) {
+            if (accuracy > 80 and streak >= 5) {
                 return 20; // Make it harder
             } else if (accuracy > 50) {
                 return 30; // Medium challenge
@@ -485,6 +492,23 @@
             }
         }
 
+        function updateCoins(amount) {
+            coins += amount;
+            document.getElementById('coins').textContent = coins;
+            localStorage.setItem('coins', JSON.stringify(coins));
+        }
+
+        function purchasePowerUp(cost, powerUp) {
+            if (coins >= cost) {
+                updateCoins(-cost);
+                powerUpActive = powerUp;
+                alert(`${powerUp} activated!`);
+                document.getElementById(`buy-${powerUp}`).disabled = true;
+            } else {
+                alert('Not enough coins!');
+            }
+        }
+
         document.getElementById('dark-mode-toggle').addEventListener('click', toggleDarkMode);
         document.getElementById('sound-toggle').addEventListener('click', toggleSound);
         document.getElementById('music-toggle').addEventListener('click', toggleMusic);
@@ -523,6 +547,10 @@
         document.getElementById('help-toggle').addEventListener('click', toggleHelpSection);
         document.getElementById('next-step-button').addEventListener('click', nextTutorialStep);
         document.getElementById('send-message').addEventListener('click', sendMessage);
+        document.getElementById('buy-double-points').addEventListener('click', () => purchasePowerUp(5, 'double-points'));
+        document.getElementById('buy-freeze-opponent').addEventListener('click', () => purchasePowerUp(10, 'freeze-opponent'));
+        document.getElementById('buy-extra-time').addEventListener('click', () => purchasePowerUp(8, 'extra-time'));
+        document.getElementById('earn-coins-button').addEventListener('click', () => updateCoins(5)); // For testing purposes, this gives 5 coins per click
         document.querySelectorAll('.help-topic').forEach(topic => {
             topic.addEventListener('click', () => showHelpTopic(topic.getAttribute('data-topic')));
         });
@@ -552,6 +580,7 @@
             displayGameHistory();
             updateStatistics();
             checkChallengeLevelUnlocks();
+            document.getElementById('coins').textContent = coins;
         };
     </script>
 </body>
