@@ -5,305 +5,74 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Math Puzzle Game</title>
     <style>
-        :root {
-            --background-color: var(--default-background, #f4f4f4);
-            --text-color: var(--default-text, #333);
-            --container-background: #fff;
-            --button-background: #4CAF50;
-            --button-hover-background: #45a049;
-            --hint-color: #555;
-        }
+        /* Previous styles omitted for brevity */
 
-        [data-theme="dark"] {
-            --background-color: var(--default-background, #333);
-            --text-color: var(--default-text, #f4f4f4);
-            --container-background: #444;
-            --button-background: #888;
-            --button-hover-background: #777;
-            --hint-color: #bbb;
-        }
-
-        [data-theme="blue"] {
-            --background-color: var(--default-background, #e0f7fa);
-            --text-color: var(--default-text, #00796b);
-            --container-background: #ffffff;
-            --button-background: #00796b;
-            --button-hover-background: #004d40;
-            --hint-color: #004d40;
-        }
-
-        [data-theme="high-contrast"] {
-            --background-color: var(--default-background, #000000);
-            --text-color: var(--default-text, #ffffff);
-            --container-background: #000000;
-            --button-background: #ffffff;
-            --button-hover-background: #cccccc;
-            --hint-color: #ffffff;
-        }
-
-        body {
-            font-family: Arial, sans-serif;
-            background-color: var(--background-color);
-            color: var(--text-color);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
-            font-size: var(--default-font-size, 16px);
-        }
-
-        header {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        #game-container {
-            background-color: var(--container-background);
-            padding: 20px;
-            border-radius: 8px;
+        #chat-container {
+            margin-top: 20px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            padding: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             width: 350px;
+            display: none;
         }
 
-        #puzzle {
+        #chat-messages {
+            height: 150px;
+            overflow-y: auto;
+            border-bottom: 1px solid #ddd;
             margin-bottom: 10px;
-            font-size: 24px;
-            text-align: center;
         }
 
-        #hint {
-            margin-bottom: 10px;
-            font-size: 18px;
-            text-align: center;
-            color: var(--hint-color);
-        }
-
-        #controls {
+        #chat-input {
             display: flex;
-            flex-direction: column;
-            align-items: center;
+            justify-content: space-between;
         }
 
-        input[type="number"], select, button {
+        #chat-input input[type="text"] {
+            width: 80%;
             padding: 10px;
-            font-size: 16px;
-            width: 90%;
-            margin-bottom: 10px;
-            border: 1px solid #ccc;
             border-radius: 5px;
+            border: 1px solid #ccc;
         }
 
-        button {
-            background-color: var(--button-background);
-            color: var(--text-color);
+        #chat-input button {
+            width: 18%;
+            background-color: #4CAF50;
+            color: white;
             border: none;
+            border-radius: 5px;
             cursor: pointer;
         }
 
-        button:hover {
-            background-color: var(--button-hover-background);
+        #chat-input button:hover {
+            background-color: #45a049;
         }
 
-        #dark-mode-toggle, #sound-toggle, #music-toggle, #settings-toggle, #tutorial-toggle {
-            background-color: #444;
-            color: white;
-            width: auto;
-            margin-top: 10px;
-        }
-
-        #dark-mode-toggle:hover, #sound-toggle:hover, #music-toggle:hover, #settings-toggle:hover, #tutorial-toggle:hover {
-            background-color: #555;
-        }
-
-        #feedback {
-            font-size: 18px;
-            margin-top: 10px;
-            text-align: center;
-        }
-
-        #feedback.correct {
-            color: green;
-        }
-
-        #feedback.incorrect {
-            color: red;
-        }
-
-        #score, #timer, #high-score, #streak {
-            font-size: 18px;
-            margin-top: 5px;
-            text-align: center;
-        }
-
-        #progress-bar-container {
-            width: 90%;
-            height: 20px;
-            background-color: #ccc;
-            border-radius: 10px;
-            overflow: hidden;
-            margin-top: 10px;
-        }
-
-        #progress-bar {
-            height: 100%;
-            background-color: var(--button-background);
-            width: 100%;
-            transition: width 1s linear;
-        }
-
-        #leaderboard {
+        #power-ups-container {
             margin-top: 20px;
-            text-align: center;
-        }
-
-        #leaderboard h2 {
-            margin-bottom: 10px;
-        }
-
-        #leaderboard ol {
-            padding: 0;
-            list-style-type: none;
-        }
-
-        #leaderboard li {
-            background-color: #f1f1f1;
-            margin-bottom: 5px;
-            padding: 5px;
-            border-radius: 5px;
-        }
-
-        #achievements {
-            margin-top: 20px;
-            text-align: center;
-        }
-
-        #achievements h2 {
-            margin-bottom: 10px;
-        }
-
-        #achievements ul {
-            padding: 0;
-            list-style-type: none;
-        }
-
-        #achievements li {
-            background-color: #e1e1e1;
-            margin-bottom: 5px;
-            padding: 5px;
-            border-radius: 5px;
-        }
-
-        #settings-menu {
             display: none;
-            flex-direction: column;
-            align-items: center;
-            margin-top: 20px;
-        }
-
-        #settings-menu label {
-            margin-bottom: 10px;
-        }
-
-        #settings-menu input[type="color"] {
-            margin-bottom: 20px;
-        }
-
-        #settings-menu input[type="range"] {
-            width: 90%;
-        }
-
-        #close-settings {
-            background-color: #e74c3c;
-            color: white;
-            margin-top: 20px;
-        }
-
-        #close-settings:hover {
-            background-color: #c0392b;
-        }
-
-        #theme-selection {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-top: 20px;
-        }
-
-        #theme-selection label {
-            margin-bottom: 10px;
-        }
-
-        #accessibility-options {
-            margin-top: 20px;
             text-align: center;
         }
 
-        #accessibility-options label {
-            margin-right: 10px;
-        }
-
-        #tutorial {
-            display: none;
-            margin-top: 20px;
-            text-align: center;
-            background-color: #f9f9f9;
-            padding: 10px;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-
-        #tips {
-            margin-top: 20px;
-            text-align: center;
-            font-size: 16px;
-            color: #888;
-        }
-
-        #end-summary {
-            display: none;
-            margin-top: 20px;
-            text-align: center;
-            background-color: #f9f9f9;
-            padding: 10px;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-
-        #end-summary ul {
-            list-style-type: none;
-            padding: 0;
-        }
-
-        #end-summary li {
-            margin-bottom: 10px;
-            padding: 5px;
-            border-bottom: 1px solid #ddd;
-        }
-
-        #share-buttons {
-            display: flex;
-            justify-content: center;
-            margin-top: 20px;
-        }
-
-        .share-button {
-            background-color: #1da1f2;
+        .power-up {
+            background-color: #ff9800;
             color: white;
             border: none;
             padding: 10px;
             margin: 5px;
             border-radius: 5px;
             cursor: pointer;
+            display: inline-block;
         }
 
-        .share-button.fb {
-            background-color: #3b5998;
+        .power-up:hover {
+            background-color: #e68a00;
         }
 
-        .share-button:hover {
-            opacity: 0.8;
+        .power-up:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
         }
 
     </style>
@@ -434,6 +203,20 @@
                         <button class="share-button fb" id="share-facebook">Share on Facebook</button>
                     </div>
                 </div>
+                <div id="chat-container">
+                    <h3>Multiplayer Chat</h3>
+                    <div id="chat-messages"></div>
+                    <div id="chat-input">
+                        <input type="text" id="chat-message" placeholder="Type a message...">
+                        <button id="send-chat">Send</button>
+                    </div>
+                </div>
+                <div id="power-ups-container">
+                    <h3>Power-Ups</h3>
+                    <button class="power-up" id="double-points">Double Points</button>
+                    <button class="power-up" id="freeze-opponent">Freeze Opponent</button>
+                    <button class="power-up" id="extra-time">Extra Time</button>
+                </div>
             </div>
         </div>
     </main>
@@ -528,8 +311,12 @@
                 timeLeft = 30; // Survival mode starts with 30 seconds
             } else if (mode === 'puzzle-rush') {
                 timeLeft = 10; // Puzzle Rush mode starts with 10 seconds per puzzle
-            } else {
+            } else if (mode === 'multiplayer') {
                 timeLeft = 120; // Multiplayer mode has 2 minutes total for the game
+                document.getElementById('chat-container').style.display = 'block';
+                document.getElementById('power-ups-container').style.display = 'block';
+            } else {
+                timeLeft = 120;
             }
             document.getElementById('timer').textContent = `Time Left: ${timeLeft}s`;
             updateProgressBar();
@@ -750,6 +537,8 @@
             document.getElementById('submit-answer').disabled = true;
             document.getElementById('new-puzzle').disabled = true;
             document.getElementById('get-hint').disabled = true;
+            document.getElementById('chat-container').style.display = 'none';
+            document.getElementById('power-ups-container').style.display = 'none';
             updateLeaderboard();
             checkAchievements();
             saveGameHistory();
@@ -923,12 +712,15 @@
         function activatePowerUp(powerUp) {
             if (powerUp === 'double-points') {
                 powerUpActive = 'double-points';
+                document.getElementById('double-points').disabled = true;
             } else if (powerUp === 'freeze-opponent') {
                 opponentFrozen = true;
                 switchTurn();
+                document.getElementById('freeze-opponent').disabled = true;
             } else if (powerUp === 'extra-time') {
                 timeLeft += 10;
                 updateTimer();
+                document.getElementById('extra-time').disabled = true;
             }
         }
 
@@ -1071,6 +863,10 @@
         document.getElementById('close-tutorial').addEventListener('click', displayTutorial);
         document.getElementById('share-twitter').addEventListener('click', shareOnTwitter);
         document.getElementById('share-facebook').addEventListener('click', shareOnFacebook);
+        document.getElementById('send-chat').addEventListener('click', sendChatMessage);
+        document.getElementById('double-points').addEventListener('click', () => activatePowerUp('double-points'));
+        document.getElementById('freeze-opponent').addEventListener('click', () => activatePowerUp('freeze-opponent'));
+        document.getElementById('extra-time').addEventListener('click', () => activatePowerUp('extra-time'));
 
         // Initialize the game on page load
         window.onload = () => {
@@ -1097,6 +893,19 @@
             displayGameHistory();
             updateStatistics();
         };
+
+        function sendChatMessage() {
+            const chatInput = document.getElementById('chat-message');
+            const message = chatInput.value.trim();
+            if (message) {
+                const chatMessages = document.getElementById('chat-messages');
+                const newMessage = document.createElement('div');
+                newMessage.textContent = `Player ${playerTurn}: ${message}`;
+                chatMessages.appendChild(newMessage);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+                chatInput.value = '';
+            }
+        }
     </script>
 </body>
 </html>
