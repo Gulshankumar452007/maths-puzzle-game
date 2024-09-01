@@ -7,26 +7,33 @@
     <style>
         /* Previous styles omitted for brevity */
 
-        #chat-container {
-        #customization-menu {
+        #challenge-levels-container {
+        #help-section {
             margin-top: 20px;
-            background-color: #f0f0f0;
+            background-color: #f9f9f9;
             border-radius: 5px;
             padding: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            width: 300px;
             width: 350px;
             display: none;
         }
 
-        #chat-messages {
+        #challenge-levels {
             height: 150px;
+        #help-contents {
+            height: 300px;
             overflow-y: auto;
             border-bottom: 1px solid #ddd;
             margin-bottom: 10px;
-        #theme-editor {
+        }
+
+        .challenge-item {
+            margin-bottom: 5px;
+            padding: 5px;
+            background-color: #fff;
+        #tutorial-container {
             margin-top: 20px;
-            background-color: #f0f0f0;
+            background-color: #f9f9f9;
             border-radius: 5px;
             padding: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -34,19 +41,17 @@
             display: none;
         }
 
-        #chat-input {
-            width: 100%;
-            padding: 5px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-        #theme-saver {
-            margin-top: 10px;
-            display: flex;
-            justify-content: space-between;
+        #tutorial-steps {
+            height: 300px;
+            overflow-y: auto;
+            margin-bottom: 10px;
         }
 
-        #send-message {
-        #save-theme {
+        .tutorial-step {
+            margin-bottom: 10px;
+        }
+
+        #next-step-button {
             background-color: #4CAF50;
             color: white;
             border: none;
@@ -54,61 +59,23 @@
             border-radius: 5px;
             cursor: pointer;
             width: 100%;
-            margin-top: 5px;
         }
 
-        #send-message:hover {
+        #next-step-button:hover {
             background-color: #45a049;
         }
 
-        .correct-answer {
-            animation: correct-animation 1s ease-in-out;
-        }
-
-        .incorrect-answer {
-            animation: incorrect-animation 1s ease-in-out;
-        }
-
-        @keyframes correct-animation {
-            0% { background-color: #4CAF50; }
-            100% { background-color: #fff; }
-        }
-
-        @keyframes incorrect-animation {
-            0% { background-color: #f44336; }
-            100% { background-color: #fff; }
-        }
-
-        .animated-score {
-            font-size: 1.5em;
-            animation: bounce 0.5s ease-in-out;
-        #apply-theme {
-            background-color: #2196F3;
-            color: white;
-            border: none;
-            padding: 10px;
-            border-radius: 5px;
+        .challenge-item:hover {
+        .help-topic {
             cursor: pointer;
-        }
-
-        @keyframes bounce {
-            0%, 20%, 50%, 80%, 100% {
-                transform: translateY(0);
-            }
-            40% {
-                transform: translateY(-30px);
-            }
-            60% {
-                transform: translateY(-15px);
-            }
-        #customization-menu select,
-        #theme-editor input[type="color"],
-        #theme-editor input[type="text"] {
-            width: 100%;
             padding: 5px;
             margin: 5px 0;
+            background-color: #e0e0e0;
             border-radius: 5px;
-            border: 1px solid #ccc;
+        }
+
+        .help-topic:hover {
+            background-color: #ccc;
         }
 
     </style>
@@ -149,12 +116,10 @@
                 <button id="sound-toggle">Toggle Sound</button>
                 <button id="music-toggle">Toggle Music</button>
                 <button id="settings-toggle">Settings</button>
-                <button id="customization-toggle">Puzzle Customization</button>
-                <button id="theme-editor-toggle">Theme Editor</button>
                 <button id="tutorial-toggle">Show Tutorial</button>
                 <button id="help-toggle">Help</button>
                 <div id="feedback"></div>
-                <div id="score" class="animated-score">Score: 0</div>
+                <div id="score">Score: 0</div>
                 <div id="high-score">High Score: 0</div>
                 <div id="streak">Streak: 0</div>
                 <div id="timer">Time Left: 30s</div>
@@ -205,14 +170,6 @@
                         <div class="help-topic" data-topic="settings">Game Settings</div>
                     </div>
                 </div>
-                <div id="chat-container">
-                    <h3>Multiplayer Chat</h3>
-                    <div id="chat-messages">
-                        <!-- Chat messages will appear here -->
-                    </div>
-                    <input type="text" id="chat-input" placeholder="Type your message...">
-                    <button id="send-message">Send</button>
-                </div>
                 <div id="settings-menu">
                     <label for="background-color">Background Color:</label>
                     <input type="color" id="background-color">
@@ -225,38 +182,6 @@
                     <label for="music-volume">Music Volume:</label>
                     <input type="range" id="music-volume" min="0" max="100">
                     <button id="close-settings">Close Settings</button>
-                </div>
-                <div id="customization-menu">
-                    <label for="puzzle-type">Select Puzzle Type:</label>
-                    <select id="puzzle-type">
-                        <option value="all" selected>All Types</option>
-                        <option value="addition">Addition</option>
-                        <option value="subtraction">Subtraction</option>
-                        <option value="multiplication">Multiplication</option>
-                        <option value="division">Division</option>
-                    </select>
-                    <label for="puzzle-difficulty">Select Difficulty:</label>
-                    <select id="puzzle-difficulty">
-                        <option value="easy">Easy</option>
-                        <option value="medium" selected>Medium</option>
-                        <option value="hard">Hard</option>
-                    </select>
-                    <button id="apply-customization">Apply Customization</button>
-                </div>
-                <div id="theme-editor">
-                    <h3>Theme Editor</h3>
-                    <label for="theme-name">Theme Name:</label>
-                    <input type="text" id="theme-name" placeholder="Enter theme name">
-                    <label for="theme-background-color">Background Color:</label>
-                    <input type="color" id="theme-background-color">
-                    <label for="theme-text-color">Text Color:</label>
-                    <input type="color" id="theme-text-color">
-                    <label for="theme-button-color">Button Color:</label>
-                    <input type="color" id="theme-button-color">
-                    <div id="theme-saver">
-                        <button id="save-theme">Save Theme</button>
-                        <button id="apply-theme">Apply Theme</button>
-                    </div>
                 </div>
                 <div id="theme-selection">
                     <label for="theme">Choose Theme:</label>
@@ -379,6 +304,7 @@
         ];
         let tutorialIndex = 0;
         let tutorialVisible = false;
+
         const achievementList = [
             { id: 1, name: 'Score 50 Points on Easy', achieved: false, difficulty: 'easy', check: () => score >= 50 && document.getElementById('difficulty').value === 'easy' },
             { id: 2, name: 'High Streak of 10 on Easy', achieved: false, difficulty: 'easy', check: () => streak >= 10 && document.getElementById('difficulty').value === 'easy' },
@@ -397,10 +323,7 @@
             { id: 4, name: 'Complete a Daily Challenge Streak of 7 Days', achieved: false, check: () => checkDailyChallengeStreak(7) },
             { id: 5, name: 'Complete a Daily Challenge Streak of 30 Days', achieved: false, check: () => checkDailyChallengeStreak(30) }
         ];
-
         let hintUsedThisGame = false;
-        let selectedPuzzleType = 'all'; // Default to all puzzle types
-
         function setInitialTime() {
             if (mode === 'classic' || mode === 'adaptive') {
                 const difficulty = document.getElementById('difficulty').value;
@@ -456,26 +379,10 @@
             } else if (difficulty === 'adaptive') {
                 ({ min, max } = adaptiveDifficultyBasedOnPerformance());
             }
-
-            if (selectedPuzzleType === 'addition') {
-                currentOperator = '+';
-            } else if (selectedPuzzleType === 'subtraction') {
-                currentOperator = '-';
-            } else if (selectedPuzzleType === 'multiplication') {
-                currentOperator = '*';
-            } else if (selectedPuzzleType === 'division') {
-                currentOperator = '/';
-            } else {
-                const operations = ['+', '-', '*', '/'];
-                currentOperator = operations[Math.floor(Math.random() * operations.length)];
-            }
-
             num1 = Math.floor(Math.random() * (max - min + 1)) + min;
             num2 = Math.floor(Math.random() * (max - min + 1)) + min;
-
             const operations = ['+', '-', '*', '/'];
             currentOperator = operations[Math.floor(Math.random() * operations.length)];
-
             if (currentOperator === '+') {
                 currentAnswer = num1 + num2;
             } else if (currentOperator === '-') {
@@ -496,6 +403,17 @@
             addToPuzzleHistory(currentPuzzle);
         }
 
+        function adaptiveDifficultyBasedOnPerformance() {
+            const accuracy = correctAnswers > 0 ? (correctAnswers / totalPuzzles) * 100 : 0;
+            if (accuracy > 80 && streak >= 5) {
+                return { min: 50, max: 100 }; // Make it harder
+            } else if (accuracy > 50) {
+                return { min: 10, max: 50 }; // Medium challenge
+            } else {
+                return { min: 1, max: 10 }; // Easy challenge
+            }
+        }
+
         function provideHint() {
             let hintMessage = '';
             if (score > 0) {
@@ -514,34 +432,29 @@
                 document.getElementById('hint').textContent = 'Not enough points for a hint!';
             }
         }
-
         function checkAnswer() {
             const userAnswer = parseInt(document.getElementById('answer').value);
             const feedbackElement = document.getElementById('feedback');
             const correctSound = document.getElementById('correct-sound');
             const incorrectSound = document.getElementById('incorrect-sound');
             const responseTime = (Date.now() - responseStartTime) / 1000;
-
             if (userAnswer === currentAnswer) {
                 let pointsGained = 2 + getBonusPoints();
                 if (powerUpActive === 'double-points') {
                     pointsGained *= 2;
                     powerUpActive = null;
                 }
-
                 feedbackElement.textContent = `Correct! +${pointsGained} points!`;
-                feedbackElement.classList.add('correct-answer');
-                feedbackElement.classList.remove('incorrect-answer');
+                feedbackElement.classList.add('correct');
+                feedbackElement.classList.remove('incorrect');
                 streak++;
                 score += pointsGained;
                 correctAnswers++;
                 totalPuzzles++;
                 totalResponseTime += responseTime;
-
                 if (mode === 'survival') {
                     timeLeft += 5; // Add 5 seconds for each correct answer in Survival Mode
                 }
-
                 if (soundEnabled) {
                     correctSound.volume = soundVolume / 100;
                     correctSound.play();
@@ -551,7 +464,6 @@
                 updateStatistics();
                 checkAchievements();
                 generatePuzzle();
-
                 if (mode === 'multiplayer') {
                     playerScores[playerTurn - 1] += pointsGained;
                     updatePlayerScores();
@@ -563,19 +475,17 @@
                 }
             } else {
                 feedbackElement.textContent = 'Incorrect. Streak reset!';
-                feedbackElement.classList.add('incorrect-answer');
-                feedbackElement.classList.remove('correct-answer');
+                feedbackElement.classList.add('incorrect');
+                feedbackElement.classList.remove('correct');
                 streak = 0;
                 incorrectAnswers++;
                 totalPuzzles++;
-
                 if (soundEnabled) {
                     incorrectSound.volume = soundVolume / 100;
                     incorrectSound.play();
                 }
                 updateStreak();
                 updateStatistics();
-
                 if (mode === 'multiplayer') {
                     switchTurn();
                 }
@@ -584,20 +494,15 @@
             localStorage.setItem('correctAnswers', JSON.stringify(correctAnswers));
             localStorage.setItem('incorrectAnswers', JSON.stringify(incorrectAnswers));
             localStorage.setItem('totalResponseTime', JSON.stringify(totalResponseTime));
-
             if (mode === 'puzzle-rush' && timeLeft <= 0) {
                 endGame();
             }
         }
-
         function getBonusPoints() {
             return streak >= 3 ? Math.floor(streak / 3) : 0;
         }
-
         function updateScore() {
-            const scoreElement = document.getElementById('score');
-            scoreElement.textContent = `Score: ${score}`;
-            scoreElement.classList.add('animated-score');
+            document.getElementById('score').textContent = `Score: ${score}`;
             if (mode === 'classic' && score > highScore) {
                 highScore = score;
                 document.getElementById('high-score').textContent = `High Score: ${highScore}`;
@@ -609,26 +514,21 @@
                 document.getElementById('high-score').textContent = `High Score: ${highScore}`;
             }
         }
-
         function updateStreak() {
             document.getElementById('streak').textContent = `Streak: ${streak}`;
         }
-
         function updatePlayerScores() {
             document.getElementById('player-scores').textContent = `Player 1: ${playerScores[0]} | Player 2: ${playerScores[1]}`;
         }
-
         function updateTimer() {
             timeLeft--;
             document.getElementById('timer').textContent = `Time Left: ${timeLeft}s`;
             updateProgressBar();
-
             if (timeLeft <= 0) {
                 clearInterval(timerInterval);
                 endGame();
             }
         }
-
         function updateProgressBar() {
             const initialTime = mode === 'classic' || mode === 'adaptive' ?
                 (document.getElementById('difficulty').value === 'easy' ? 45 :
@@ -637,14 +537,11 @@
             const progressBar = document.getElementById('progress-bar');
             progressBar.style.width = `${(timeLeft / initialTime) * 100}%`;
         }
-
         function startTimer() {
             timerInterval = setInterval(updateTimer, 1000);
         }
-
         function endGame() {
             let endMessage = `Game Over! Your final score is ${score}.`;
-
             if (mode === 'multiplayer') {
                 if (playerScores[0] > playerScores[1]) {
                     endMessage = `Game Over! Player 1 wins with ${playerScores[0]} points!`;
@@ -664,9 +561,8 @@
             } else if (mode === 'puzzle-rush') {
                 endMessage = `Puzzle Rush Over! Your final score is ${score}.`;
             }
-
             document.getElementById('feedback').textContent = endMessage;
-            document.getElementById('feedback').classList.remove('correct-answer', 'incorrect-answer');
+            document.getElementById('feedback').classList.remove('correct', 'incorrect');
             document.getElementById('puzzle').textContent = '';
             document.getElementById('hint').textContent = '';
             document.getElementById('submit-answer').disabled = true;
@@ -680,7 +576,6 @@
             hintUsedThisGame = false;
             displayEndSummary();
         }
-
         function resetGame() {
             score = 0;
             streak = 0;
@@ -701,7 +596,6 @@
             generatePuzzle();
             displayRandomTip();
         }
-
         function updateLeaderboard() {
             if (mode === 'classic') {
                 leaderboard.push(score);
@@ -735,7 +629,6 @@
                 displayLeaderboard(leaderboard);
             }
         }
-
         function updateDailyLeaderboard() {
             dailyLeaderboard.push(score);
             dailyLeaderboard.sort((a, b) => b - a);
@@ -743,7 +636,6 @@
             localStorage.setItem('dailyLeaderboard', JSON.stringify(dailyLeaderboard));
             displayLeaderboard(dailyLeaderboard);
         }
-
         function displayLeaderboard(leaderboardArray) {
             const leaderboardList = document.getElementById('leaderboard-list');
             leaderboardList.innerHTML = '';
@@ -753,7 +645,6 @@
                 leaderboardList.appendChild(listItem);
             });
         }
-
         function checkAchievements() {
             achievementList.forEach(achievement => {
                 if (!achievement.achieved && achievement.check()) {
@@ -764,7 +655,6 @@
             });
             displayAchievements();
         }
-
         function checkDailyAchievements() {
             dailyAchievementList.forEach(achievement => {
                 if (!achievement.achieved && achievement.check()) {
@@ -775,7 +665,6 @@
             });
             displayDailyAchievements();
         }
-
         function displayAchievements() {
             const achievementListElement = document.getElementById('achievement-list');
             achievementListElement.innerHTML = '';
@@ -785,7 +674,6 @@
                 achievementListElement.appendChild(listItem);
             });
         }
-
         function displayDailyAchievements() {
             const dailyAchievementListElement = document.getElementById('daily-challenge-achievement-list');
             dailyAchievementListElement.innerHTML = '';
@@ -795,30 +683,25 @@
                 dailyAchievementListElement.appendChild(listItem);
             });
         }
-
         function updateStatistics() {
             const accuracy = correctAnswers > 0 ? ((correctAnswers / totalPuzzles) * 100).toFixed(2) : 0;
             const averageTime = totalPuzzles > 0 ? (totalResponseTime / totalPuzzles).toFixed(2) : 0;
-
             document.getElementById('total-puzzles').textContent = totalPuzzles;
             document.getElementById('correct-answers').textContent = correctAnswers;
             document.getElementById('incorrect-answers').textContent = incorrectAnswers;
             document.getElementById('accuracy').textContent = `${accuracy}%`;
             document.getElementById('average-time').textContent = `${averageTime}s`;
         }
-
         function toggleDarkMode() {
             const newTheme = theme === 'light' ? 'dark' : 'light';
             document.body.setAttribute('data-theme', newTheme);
             localStorage.setItem('theme', newTheme);
             theme = newTheme;
         }
-
         function toggleSound() {
             soundEnabled = !soundEnabled;
             localStorage.setItem('soundEnabled', JSON.stringify(soundEnabled));
         }
-
         function toggleMusic() {
             musicEnabled = !musicEnabled;
             const backgroundMusic = document.getElementById('background-music');
@@ -830,24 +713,17 @@
             }
             localStorage.setItem('musicEnabled', JSON.stringify(musicEnabled));
         }
-
         function switchMode(selectedMode) {
             mode = selectedMode;
-        function applyCustomization() {
-            selectedPuzzleType = document.getElementById('puzzle-type').value;
-            const selectedDifficulty = document.getElementById('puzzle-difficulty').value;
-            document.getElementById('difficulty').value = selectedDifficulty;
             resetGame();
             if (selectedMode === 'daily') {
                 startDailyChallenge();
             }
         }
-
         function switchTurn() {
             playerTurn = playerTurn === 1 ? 2 : 1;
             document.getElementById('player-turn').textContent = `Player ${playerTurn}'s Turn`;
         }
-
         function activatePowerUp(powerUp) {
             if (powerUp === 'double-points') {
                 powerUpActive = 'double-points';
@@ -862,51 +738,33 @@
                 document.getElementById('extra-time').disabled = true;
             }
         }
-
         function openSettings() {
             document.getElementById('settings-menu').style.display = 'flex';
         }
-        function saveTheme() {
-            const themeName = document.getElementById('theme-name').value;
-            const backgroundColor = document.getElementById('theme-background-color').value;
-            const textColor = document.getElementById('theme-text-color').value;
-            const buttonColor = document.getElementById('theme-button-color').value;
-
         function closeSettings() {
             document.getElementById('settings-menu').style.display = 'none';
-            const themeData = { themeName, backgroundColor, textColor, buttonColor };
-            localStorage.setItem(`theme-${themeName}`, JSON.stringify(themeData));
-            alert(`Theme "${themeName}" saved successfully!`);
         }
-
         function applySettings() {
             const backgroundColorPicker = document.getElementById('background-color');
             const textColorPicker = document.getElementById('text-color');
             const buttonColorPicker = document.getElementById('button-color');
             const soundVolumeSlider = document.getElementById('sound-volume');
             const musicVolumeSlider = document.getElementById('music-volume');
-
             backgroundColor = backgroundColorPicker.value;
             textColor = textColorPicker.value;
             buttonColor = buttonColorPicker.value;
             soundVolume = soundVolumeSlider.value;
             musicVolume = musicVolumeSlider.value;
-        function applyTheme() {
-            const themeName = document.getElementById('theme-name').value;
-            const themeData = JSON.parse(localStorage.getItem(`theme-${themeName}`));
-
             document.documentElement.style.setProperty('--default-background', backgroundColor);
             document.documentElement.style.setProperty('--default-text', textColor);
             document.documentElement.style.setProperty('--button-background', buttonColor);
             document.getElementById('background-music').volume = musicVolume / 100;
-
             localStorage.setItem('backgroundColor', backgroundColor);
             localStorage.setItem('textColor', textColor);
             localStorage.setItem('buttonColor', buttonColor);
             localStorage.setItem('soundVolume', JSON.stringify(soundVolume));
             localStorage.setItem('musicVolume', JSON.stringify(musicVolume));
         }
-
         function startDailyChallenge() {
             const today = new Date().toISOString().split('T')[0];
             if (dailyChallengeDate !== today) {
@@ -918,13 +776,11 @@
                 updateDailyStats();
             }
         }
-
         function updateDailyStats() {
             const dailyChallengeStats = document.getElementById('daily-challenge-stats');
             dailyChallengeStats.textContent = `Today's Challenge Date: ${dailyChallengeDate}`;
             displayDailyAchievements();
         }
-
         function checkDailyChallengeStreak(days) {
             const today = new Date();
             const dates = dailyAchievements.map(achievement => new Date(achievement.date));
@@ -936,14 +792,12 @@
             }, 1);
             return streak >= days;
         }
-
         function saveGameHistory() {
             const today = new Date().toISOString().split('T')[0];
             gameHistory.push({ date: today, score: score, mode: mode });
             localStorage.setItem('gameHistory', JSON.stringify(gameHistory));
             displayGameHistory();
         }
-
         function displayGameHistory() {
             const gameHistoryList = document.getElementById('game-history-list');
             gameHistoryList.innerHTML = '';
@@ -953,12 +807,10 @@
                 gameHistoryList.appendChild(listItem);
             });
         }
-
         function addToPuzzleHistory(puzzle) {
             puzzleHistory.push(puzzle);
             displayPuzzleHistory();
         }
-
         function displayPuzzleHistory() {
             const puzzleHistoryContainer = document.getElementById('puzzle-history-container');
             puzzleHistoryContainer.style.display = 'block';
@@ -972,14 +824,12 @@
                 puzzleHistoryList.appendChild(listItem);
             });
         }
-
         function selectPuzzle(index) {
             selectedPuzzle = puzzleHistory[index];
             const replayButton = document.getElementById('replay-button');
             replayButton.disabled = false;
             replayButton.addEventListener('click', replaySelectedPuzzle);
         }
-
         function replaySelectedPuzzle() {
             if (selectedPuzzle) {
                 document.getElementById('puzzle').textContent = `What is ${selectedPuzzle.num1} ${selectedPuzzle.operator} ${selectedPuzzle.num2}?`;
@@ -989,14 +839,12 @@
                 responseStartTime = Date.now();
             }
         }
-
         function unlockChallengeLevel(levelName, criteria) {
             if (!challengeLevels.includes(levelName) && criteria()) {
                 challengeLevels.push(levelName);
                 displayChallengeLevels();
             }
         }
-
         function displayChallengeLevels() {
             const challengeLevelsContainer = document.getElementById('challenge-levels-container');
             challengeLevelsContainer.style.display = 'block';
@@ -1009,7 +857,6 @@
                 challengeLevelsList.appendChild(listItem);
             });
         }
-
         function checkChallengeLevelUnlocks() {
             unlockChallengeLevel('Master of Medium', () => score >= 100 && document.getElementById('difficulty').value === 'medium');
             unlockChallengeLevel('Survival Expert', () => mode === 'survival' && score >= 50);
@@ -1017,38 +864,54 @@
         }
 
         function displayTutorial() {
+            const tutorialElement = document.getElementById('tutorial');
             const tutorialContainer = document.getElementById('tutorial-container');
             const tutorialStepsContainer = document.getElementById('tutorial-steps');
             tutorialVisible = !tutorialVisible;
+            tutorialElement.style.display = tutorialVisible ? 'block' : 'none';
+        }
             tutorialContainer.style.display = tutorialVisible ? 'block' : 'none';
 
+        function displayRandomTip() {
+            const randomTip = tips[Math.floor(Math.random() * tips.length)];
+            document.getElementById('tips').textContent = `Tip: ${randomTip}`;
             if (tutorialVisible) {
                 tutorialStepsContainer.innerHTML = `<div class="tutorial-step">${tutorialSteps[tutorialIndex]}</div>`;
             }
         }
 
+        function displayEndSummary() {
+            document.getElementById('final-score').textContent = score;
+            document.getElementById('summary-high-score').textContent = highScore;
+            document.getElementById('summary-correct-answers').textContent = correctAnswers;
+            document.getElementById('summary-incorrect-answers').textContent = incorrectAnswers;
+            document.getElementById('summary-accuracy').textContent = `${((correctAnswers / totalPuzzles) * 100).toFixed(2)}%`;
+            document.getElementById('summary-average-time').textContent = `${(totalResponseTime / totalPuzzles).toFixed(2)}s`;
+            document.getElementById('summary-achievements').textContent = achievements.filter(a => a.achieved).length;
+            document.getElementById('end-summary').style.display = 'block';
         function nextTutorialStep() {
             tutorialIndex++;
             if (tutorialIndex < tutorialSteps.length) {
                 const tutorialStepsContainer = document.getElementById('tutorial-steps');
                 tutorialStepsContainer.innerHTML = `<div class="tutorial-step">${tutorialSteps[tutorialIndex]}</div>`;
-            if (themeData) {
-                document.documentElement.style.setProperty('--default-background', themeData.backgroundColor);
-                document.documentElement.style.setProperty('--default-text', themeData.textColor);
-                document.documentElement.style.setProperty('--button-background', themeData.buttonColor);
-                localStorage.setItem('theme', themeName);
-                alert(`Theme "${themeName}" applied successfully!`);
             } else {
                 tutorialIndex = 0;
                 displayTutorial();
             }
         }
 
+        function shareOnTwitter() {
+            const text = `I scored ${score} in the Math Puzzle Game! Can you beat my score?`;
+            const url = encodeURIComponent(window.location.href);
+            window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank');
         function toggleHelpSection() {
             const helpSection = document.getElementById('help-section');
             helpSection.style.display = helpSection.style.display === 'block' ? 'none' : 'block';
         }
 
+        function shareOnFacebook() {
+            const url = encodeURIComponent(window.location.href);
+            window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank');
         function showHelpTopic(topic) {
             const helpContent = {
                 'game-modes': 'Learn about different game modes like Classic, Timed, Survival, Puzzle Rush, and Multiplayer.',
@@ -1064,20 +927,6 @@
             helpContents.innerHTML = `<div>${helpContent[topic]}</div>`;
         }
 
-        function sendMessage() {
-            const chatInput = document.getElementById('chat-input');
-            const message = chatInput.value.trim();
-            if (message !== '') {
-                const chatMessages = document.getElementById('chat-messages');
-                const newMessage = document.createElement('div');
-                newMessage.textContent = `Player ${playerTurn}: ${message}`;
-                chatMessages.appendChild(newMessage);
-                chatMessages.scrollTop = chatMessages.scrollHeight;
-                chatInput.value = '';
-                alert(`Theme "${themeName}" not found!`);
-            }
-        }
-
         document.getElementById('dark-mode-toggle').addEventListener('click', toggleDarkMode);
         document.getElementById('sound-toggle').addEventListener('click', toggleSound);
         document.getElementById('music-toggle').addEventListener('click', toggleMusic);
@@ -1090,21 +939,9 @@
         document.getElementById('timed-mode').addEventListener('click', () => switchMode('timed'));
         document.getElementById('survival-mode').addEventListener('click', () => switchMode('survival'));
         document.getElementById('puzzle-rush-mode').addEventListener('click', () => switchMode('puzzle-rush'));
-        document.getElementById('multiplayer-mode').addEventListener('click', () => {
-            switchMode('multiplayer');
-            document.getElementById('chat-container').style.display = 'block';
-        });
+        document.getElementById('multiplayer-mode').addEventListener('click', () => switchMode('multiplayer'));
         document.getElementById('daily-challenge-mode').addEventListener('click', () => switchMode('daily'));
         document.getElementById('settings-toggle').addEventListener('click', openSettings);
-        document.getElementById('customization-toggle').addEventListener('click', () => {
-            document.getElementById('customization-menu').style.display = 'block';
-        });
-        document.getElementById('theme-editor-toggle').addEventListener('click', () => {
-            document.getElementById('theme-editor').style.display = 'block';
-        });
-        document.getElementById('apply-customization').addEventListener('click', applyCustomization);
-        document.getElementById('save-theme').addEventListener('click', saveTheme);
-        document.getElementById('apply-theme').addEventListener('click', applyTheme);
         document.getElementById('close-settings').addEventListener('click', () => {
             applySettings();
             closeSettings();
@@ -1113,12 +950,15 @@
         document.getElementById('large-text').addEventListener('change', applyAccessibilityOptions);
         document.getElementById('high-contrast-mode').addEventListener('change', applyAccessibilityOptions);
         document.getElementById('tutorial-toggle').addEventListener('click', displayTutorial);
+        document.getElementById('close-tutorial').addEventListener('click', displayTutorial);
+        document.getElementById('share-twitter').addEventListener('click', shareOnTwitter);
+        document.getElementById('share-facebook').addEventListener('click', shareOnFacebook);
         document.getElementById('help-toggle').addEventListener('click', toggleHelpSection);
         document.getElementById('next-step-button').addEventListener('click', nextTutorialStep);
-        document.getElementById('send-message').addEventListener('click', sendMessage);
         document.querySelectorAll('.help-topic').forEach(topic => {
             topic.addEventListener('click', () => showHelpTopic(topic.getAttribute('data-topic')));
         });
+
         // Initialize the game on page load
         window.onload = () => {
             document.body.setAttribute('data-theme', theme);
