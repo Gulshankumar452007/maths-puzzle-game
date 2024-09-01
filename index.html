@@ -7,15 +7,7 @@
     <style>
         /* Previous styles omitted for brevity */
 
-        #currency-display {
-            margin-top: 10px;
-            font-size: 1.2em;
-            color: #FFD700;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        #power-ups-container {
+        #profile-container {
             margin-top: 20px;
             background-color: #f0f0f0;
             border-radius: 5px;
@@ -25,24 +17,31 @@
             display: none;
         }
 
-        .power-up {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
+        #profile-stats, #profile-achievements {
+            margin-top: 10px;
         }
 
-        .power-up button {
+        #daily-reward-container {
+            margin-top: 20px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+            padding: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            display: none;
+        }
+
+        #claim-reward-button {
             background-color: #4CAF50;
             color: white;
             border: none;
-            padding: 5px;
+            padding: 10px;
             border-radius: 5px;
             cursor: pointer;
-            margin-left: 10px;
+            margin-top: 10px;
         }
 
-        .power-up button:disabled {
+        #claim-reward-button:disabled {
             background-color: #ccc;
             cursor: not-allowed;
         }
@@ -88,6 +87,8 @@
                 <button id="customization-toggle">Puzzle Customization</button>
                 <button id="theme-editor-toggle">Theme Editor</button>
                 <button id="power-ups-toggle">Power-Ups</button>
+                <button id="profile-toggle">Player Profile</button>
+                <button id="daily-reward-toggle">Daily Reward</button>
                 <button id="tutorial-toggle">Show Tutorial</button>
                 <button id="help-toggle">Help</button>
                 <div id="currency-display">
@@ -213,6 +214,30 @@
                         <span>Extra Time (8 coins)</span>
                         <button id="buy-extra-time">Buy</button>
                     </div>
+                </div>
+                <div id="profile-container">
+                    <h3>Player Profile</h3>
+                    <div id="profile-stats">
+                        <h4>Statistics</h4>
+                        <ul>
+                            <li>Total Puzzles Solved: <span id="profile-total-puzzles">0</span></li>
+                            <li>Correct Answers: <span id="profile-correct-answers">0</span></li>
+                            <li>Incorrect Answers: <span id="profile-incorrect-answers">0</span></li>
+                            <li>Accuracy: <span id="profile-accuracy">0%</span></li>
+                            <li>Coins Earned: <span id="profile-coins">0</span></li>
+                        </ul>
+                    </div>
+                    <div id="profile-achievements">
+                        <h4>Achievements</h4>
+                        <ul id="profile-achievement-list">
+                            <!-- Player achievements will be displayed here -->
+                        </ul>
+                    </div>
+                </div>
+                <div id="daily-reward-container">
+                    <h3>Daily Login Reward</h3>
+                    <div id="reward-description">Log in daily to earn rewards!</div>
+                    <button id="claim-reward-button">Claim Reward</button>
                 </div>
                 <div id="theme-selection">
                     <label for="theme">Choose Theme:</label>
@@ -340,13 +365,13 @@
         let tutorialVisible = false;
 
         const achievementList = [
-            { id: 1, name: 'Score 50 Points on Easy', achieved: false, difficulty: 'easy', check: () => score >= 50 && document.getElementById('difficulty').value === 'easy' },
-            { id: 2, name: 'High Streak of 10 on Easy', achieved: false, difficulty: 'easy', check: () => streak >= 10 && document.getElementById('difficulty').value === 'easy' },
-            { id: 3, name: 'Score 50 Points on Medium', achieved: false, difficulty: 'medium', check: () => score >= 50 && document.getElementById('difficulty').value === 'medium' },
-            { id: 4, name: 'High Streak of 10 on Medium', achieved: false, difficulty: 'medium', check: () => streak >= 10 && document.getElementById('difficulty').value === 'medium' },
-            { id: 5, name: 'Score 50 Points on Hard', achieved: false, difficulty: 'hard', check: () => score >= 50 && document.getElementById('difficulty').value === 'hard' },
-            { id: 6, name: 'High Streak of 10 on Hard', achieved: false, difficulty: 'hard', check: () => streak >= 10 && document.getElementById('difficulty').value === 'hard' },
-            { id: 7, name: 'Finish a Game Without Hints on Any Difficulty', achieved: false, check: () => streak > 0 && score > 0 and !hintUsedThisGame },
+            { id: 1, name: 'Score 50 Points on Easy', achieved: false, difficulty: 'easy', check: () => score >= 50 and document.getElementById('difficulty').value === 'easy' },
+            { id: 2, name: 'High Streak of 10 on Easy', achieved: false, difficulty: 'easy', check: () => streak >= 10 and document.getElementById('difficulty').value === 'easy' },
+            { id: 3, name: 'Score 50 Points on Medium', achieved: false, difficulty: 'medium', check: () => score >= 50 and document.getElementById('difficulty').value === 'medium' },
+            { id: 4, name: 'High Streak of 10 on Medium', achieved: false, difficulty: 'medium', check: () => streak >= 10 and document.getElementById('difficulty').value === 'medium' },
+            { id: 5, name: 'Score 50 Points on Hard', achieved: false, difficulty: 'hard', check: () => score >= 50 and document.getElementById('difficulty').value === 'hard' },
+            { id: 6, name: 'High Streak of 10 on Hard', achieved: false, difficulty: 'hard', check: () => streak >= 10 and document.getElementById('difficulty').value === 'hard' },
+            { id: 7, name: 'Finish a Game Without Hints on Any Difficulty', achieved: false, check: () => streak > 0 and score > 0 and !hintUsedThisGame },
             { id: 8, name: 'Score 100 Points in Timed Challenges', achieved: false, check: () => score >= 100 and mode === 'timed' },
             { id: 9, name: 'Solve 10 Puzzles in Timed Challenges', achieved: false, check: () => streak >= 10 and mode === 'timed' }
         ];
@@ -361,6 +386,8 @@
 
         let hintUsedThisGame = false;
         let selectedPuzzleType = 'all'; // Default to all puzzle types
+        let lastLoginDate = localStorage.getItem('lastLoginDate') || '';
+        let dailyRewardClaimed = false;
 
         function setInitialTime() {
             if (mode === 'classic' or mode === 'adaptive') {
@@ -509,6 +536,54 @@
             }
         }
 
+        function claimDailyReward() {
+            if (!dailyRewardClaimed) {
+                const reward = Math.floor(Math.random() * 10) + 5; // Random reward between 5 and 15 coins
+                updateCoins(reward);
+                alert(`You have claimed your daily reward of ${reward} coins!`);
+                dailyRewardClaimed = true;
+                localStorage.setItem('dailyRewardClaimed', 'true');
+                document.getElementById('claim-reward-button').disabled = true;
+            } else {
+                alert('You have already claimed your daily reward for today!');
+            }
+        }
+
+        function updateDailyRewardStatus() {
+            const today = new Date().toISOString().split('T')[0];
+            if (today !== lastLoginDate) {
+                lastLoginDate = today;
+                dailyRewardClaimed = false;
+                localStorage.setItem('lastLoginDate', today);
+                localStorage.setItem('dailyRewardClaimed', 'false');
+                document.getElementById('claim-reward-button').disabled = false;
+            } else {
+                dailyRewardClaimed = localStorage.getItem('dailyRewardClaimed') === 'true';
+                document.getElementById('claim-reward-button').disabled = dailyRewardClaimed;
+            }
+        }
+
+        function displayProfile() {
+            document.getElementById('profile-total-puzzles').textContent = totalPuzzles;
+            document.getElementById('profile-correct-answers').textContent = correctAnswers;
+            document.getElementById('profile-incorrect-answers').textContent = incorrectAnswers;
+            const accuracy = correctAnswers > 0 ? ((correctAnswers / totalPuzzles) * 100).toFixed(2) : 0;
+            document.getElementById('profile-accuracy').textContent = `${accuracy}%`;
+            document.getElementById('profile-coins').textContent = coins;
+            displayAchievementsInProfile();
+            document.getElementById('profile-container').style.display = 'block';
+        }
+
+        function displayAchievementsInProfile() {
+            const profileAchievementList = document.getElementById('profile-achievement-list');
+            profileAchievementList.innerHTML = '';
+            achievements.forEach(achievement => {
+                const listItem = document.createElement('li');
+                listItem.textContent = `🏆 ${achievement.name}`;
+                profileAchievementList.appendChild(listItem);
+            });
+        }
+
         document.getElementById('dark-mode-toggle').addEventListener('click', toggleDarkMode);
         document.getElementById('sound-toggle').addEventListener('click', toggleSound);
         document.getElementById('music-toggle').addEventListener('click', toggleMusic);
@@ -536,6 +611,11 @@
         document.getElementById('apply-customization').addEventListener('click', applyCustomization);
         document.getElementById('save-theme').addEventListener('click', saveTheme);
         document.getElementById('apply-theme').addEventListener('click', applyTheme);
+        document.getElementById('profile-toggle').addEventListener('click', displayProfile);
+        document.getElementById('daily-reward-toggle').addEventListener('click', () => {
+            document.getElementById('daily-reward-container').style.display = 'block';
+        });
+        document.getElementById('claim-reward-button').addEventListener('click', claimDailyReward);
         document.getElementById('close-settings').addEventListener('click', () => {
             applySettings();
             closeSettings();
@@ -581,6 +661,7 @@
             updateStatistics();
             checkChallengeLevelUnlocks();
             document.getElementById('coins').textContent = coins;
+            updateDailyRewardStatus();
         };
     </script>
 </body>
