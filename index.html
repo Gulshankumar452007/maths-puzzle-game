@@ -243,6 +243,74 @@
         #accessibility-options label {
             margin-right: 10px;
         }
+
+        #multiplayer-chat {
+            margin-top: 20px;
+            text-align: center;
+            display: none;
+        }
+
+        #chat-messages {
+            height: 100px;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            padding: 5px;
+        }
+
+        #chat-input {
+            display: flex;
+        }
+
+        #chat-input input[type="text"] {
+            padding: 10px;
+            width: 80%;
+            border: 1px solid #ccc;
+            border-radius: 5px 0 0 5px;
+        }
+
+        #chat-input button {
+            padding: 10px;
+            width: 20%;
+            background-color: var(--button-background);
+            color: var(--text-color);
+            border: none;
+            border-radius: 0 5px 5px 0;
+            cursor: pointer;
+        }
+
+        #invite-container {
+            margin-top: 20px;
+            text-align: center;
+            display: none;
+        }
+
+        #invite-container h3 {
+            margin-bottom: 10px;
+        }
+
+        #invite-code {
+            font-weight: bold;
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+
+        #join-invite input[type="text"] {
+            padding: 10px;
+            width: 80%;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        #join-invite button {
+            padding: 10px;
+            background-color: var(--button-background);
+            color: var(--text-color);
+            border: none;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body data-theme="light">
@@ -325,6 +393,22 @@
                 <label for="high-contrast-mode">High Contrast Mode</label>
                 <input type="checkbox" id="high-contrast-mode">
             </div>
+            <div id="invite-container">
+                <h3>Invite a Friend to Join Your Game</h3>
+                <div id="invite-code">Game Code: <span id="generated-invite-code"></span></div>
+                <div id="join-invite">
+                    <input type="text" id="invite-code-input" placeholder="Enter game code to join">
+                    <button id="join-invite-button">Join Game</button>
+                </div>
+            </div>
+            <div id="multiplayer-chat">
+                <h3>Multiplayer Chat</h3>
+                <div id="chat-messages"></div>
+                <div id="chat-input">
+                    <input type="text" id="chat-message" placeholder="Type a message...">
+                    <button id="send-chat">Send</button>
+                </div>
+            </div>
         </div>
     </main>
 
@@ -363,6 +447,8 @@
         let dailyChallengeCompleted = JSON.parse(localStorage.getItem('dailyChallengeCompleted')) || false;
         let dailyChallengeDate = localStorage.getItem('dailyChallengeDate') || '';
         let gameHistory = JSON.parse(localStorage.getItem('gameHistory')) || [];
+        let chatMessages = [];
+        let inviteCode = '';
 
         const achievementList = [
             { id: 1, name: 'Score 50 Points on Easy', achieved: false, difficulty: 'easy', check: () => score >= 50 && document.getElementById('difficulty').value === 'easy' },
@@ -857,6 +943,36 @@
             localStorage.setItem('highContrastMode', JSON.stringify(highContrastMode));
         }
 
+        function generateInviteCode() {
+            inviteCode = Math.random().toString(36).substr(2, 8).toUpperCase();
+            document.getElementById('generated-invite-code').textContent = inviteCode;
+        }
+
+        function joinGame() {
+            const codeEntered = document.getElementById('invite-code-input').value.trim().toUpperCase();
+            if (codeEntered === inviteCode) {
+                alert('You have joined the game!');
+                // Add logic to join the multiplayer game
+            } else {
+                alert('Invalid game code. Please try again.');
+            }
+        }
+
+        function sendMessage() {
+            const message = document.getElementById('chat-message').value.trim();
+            if (message !== '') {
+                chatMessages.push(`Player ${playerTurn}: ${message}`);
+                document.getElementById('chat-message').value = '';
+                updateChat();
+            }
+        }
+
+        function updateChat() {
+            const chatMessagesContainer = document.getElementById('chat-messages');
+            chatMessagesContainer.innerHTML = chatMessages.map(msg => `<div>${msg}</div>`).join('');
+            chatMessagesContainer.scrollTop = chatMessagesContainer.scrollHeight;
+        }
+
         document.getElementById('dark-mode-toggle').addEventListener('click', toggleDarkMode);
         document.getElementById('sound-toggle').addEventListener('click', toggleSound);
         document.getElementById('music-toggle').addEventListener('click', toggleMusic);
@@ -867,7 +983,12 @@
         document.getElementById('difficulty').addEventListener('change', resetGame);
         document.getElementById('classic-mode').addEventListener('click', () => switchMode('classic'));
         document.getElementById('timed-mode').addEventListener('click', () => switchMode('timed'));
-        document.getElementById('multiplayer-mode').addEventListener('click', () => switchMode('multiplayer'));
+        document.getElementById('multiplayer-mode').addEventListener('click', () => {
+            switchMode('multiplayer');
+            document.getElementById('multiplayer-chat').style.display = 'block';
+            document.getElementById('invite-container').style.display = 'block';
+            generateInviteCode();
+        });
         document.getElementById('daily-challenge-mode').addEventListener('click', () => switchMode('daily'));
         document.getElementById('settings-toggle').addEventListener('click', openSettings);
         document.getElementById('close-settings').addEventListener('click', () => {
@@ -877,6 +998,8 @@
         document.getElementById('theme').addEventListener('change', applyTheme);
         document.getElementById('large-text').addEventListener('change', applyAccessibilityOptions);
         document.getElementById('high-contrast-mode').addEventListener('change', applyAccessibilityOptions);
+        document.getElementById('join-invite-button').addEventListener('click', joinGame);
+        document.getElementById('send-chat').addEventListener('click', sendMessage);
 
         // Initialize the game on page load
         window.onload = () => {
