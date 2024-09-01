@@ -7,43 +7,31 @@
     <style>
         /* Previous styles omitted for brevity */
 
-        #help-section {
+        #chat-container {
             margin-top: 20px;
-            background-color: #f9f9f9;
+            background-color: #f0f0f0;
             border-radius: 5px;
             padding: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            width: 350px;
+            width: 300px;
             display: none;
         }
 
-        #help-contents {
-            height: 300px;
+        #chat-messages {
+            height: 150px;
             overflow-y: auto;
+            border-bottom: 1px solid #ddd;
             margin-bottom: 10px;
         }
 
-        #tutorial-container {
-            margin-top: 20px;
-            background-color: #f9f9f9;
+        #chat-input {
+            width: 100%;
+            padding: 5px;
             border-radius: 5px;
-            padding: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            width: 350px;
-            display: none;
+            border: 1px solid #ccc;
         }
 
-        #tutorial-steps {
-            height: 300px;
-            overflow-y: auto;
-            margin-bottom: 10px;
-        }
-
-        .tutorial-step {
-            margin-bottom: 10px;
-        }
-
-        #next-step-button {
+        #send-message {
             background-color: #4CAF50;
             color: white;
             border: none;
@@ -51,22 +39,46 @@
             border-radius: 5px;
             cursor: pointer;
             width: 100%;
+            margin-top: 5px;
         }
 
-        #next-step-button:hover {
+        #send-message:hover {
             background-color: #45a049;
         }
 
-        .help-topic {
-            cursor: pointer;
-            padding: 5px;
-            margin: 5px 0;
-            background-color: #e0e0e0;
-            border-radius: 5px;
+        .correct-answer {
+            animation: correct-animation 1s ease-in-out;
         }
 
-        .help-topic:hover {
-            background-color: #ccc;
+        .incorrect-answer {
+            animation: incorrect-animation 1s ease-in-out;
+        }
+
+        @keyframes correct-animation {
+            0% { background-color: #4CAF50; }
+            100% { background-color: #fff; }
+        }
+
+        @keyframes incorrect-animation {
+            0% { background-color: #f44336; }
+            100% { background-color: #fff; }
+        }
+
+        .animated-score {
+            font-size: 1.5em;
+            animation: bounce 0.5s ease-in-out;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-30px);
+            }
+            60% {
+                transform: translateY(-15px);
+            }
         }
 
     </style>
@@ -110,7 +122,7 @@
                 <button id="tutorial-toggle">Show Tutorial</button>
                 <button id="help-toggle">Help</button>
                 <div id="feedback"></div>
-                <div id="score">Score: 0</div>
+                <div id="score" class="animated-score">Score: 0</div>
                 <div id="high-score">High Score: 0</div>
                 <div id="streak">Streak: 0</div>
                 <div id="timer">Time Left: 30s</div>
@@ -160,6 +172,14 @@
                         <div class="help-topic" data-topic="leaderboards">Leaderboards</div>
                         <div class="help-topic" data-topic="settings">Game Settings</div>
                     </div>
+                </div>
+                <div id="chat-container">
+                    <h3>Multiplayer Chat</h3>
+                    <div id="chat-messages">
+                        <!-- Chat messages will appear here -->
+                    </div>
+                    <input type="text" id="chat-input" placeholder="Type your message...">
+                    <button id="send-message">Send</button>
                 </div>
                 <div id="settings-menu">
                     <label for="background-color">Background Color:</label>
@@ -441,8 +461,8 @@
                 }
 
                 feedbackElement.textContent = `Correct! +${pointsGained} points!`;
-                feedbackElement.classList.add('correct');
-                feedbackElement.classList.remove('incorrect');
+                feedbackElement.classList.add('correct-answer');
+                feedbackElement.classList.remove('incorrect-answer');
                 streak++;
                 score += pointsGained;
                 correctAnswers++;
@@ -474,8 +494,8 @@
                 }
             } else {
                 feedbackElement.textContent = 'Incorrect. Streak reset!';
-                feedbackElement.classList.add('incorrect');
-                feedbackElement.classList.remove('correct');
+                feedbackElement.classList.add('incorrect-answer');
+                feedbackElement.classList.remove('correct-answer');
                 streak = 0;
                 incorrectAnswers++;
                 totalPuzzles++;
@@ -506,7 +526,9 @@
         }
 
         function updateScore() {
-            document.getElementById('score').textContent = `Score: ${score}`;
+            const scoreElement = document.getElementById('score');
+            scoreElement.textContent = `Score: ${score}`;
+            scoreElement.classList.add('animated-score');
             if (mode === 'classic' && score > highScore) {
                 highScore = score;
                 document.getElementById('high-score').textContent = `High Score: ${highScore}`;
@@ -575,7 +597,7 @@
             }
 
             document.getElementById('feedback').textContent = endMessage;
-            document.getElementById('feedback').classList.remove('correct', 'incorrect');
+            document.getElementById('feedback').classList.remove('correct-answer', 'incorrect-answer');
             document.getElementById('puzzle').textContent = '';
             document.getElementById('hint').textContent = '';
             document.getElementById('submit-answer').disabled = true;
@@ -952,6 +974,19 @@
             helpContents.innerHTML = `<div>${helpContent[topic]}</div>`;
         }
 
+        function sendMessage() {
+            const chatInput = document.getElementById('chat-input');
+            const message = chatInput.value.trim();
+            if (message !== '') {
+                const chatMessages = document.getElementById('chat-messages');
+                const newMessage = document.createElement('div');
+                newMessage.textContent = `Player ${playerTurn}: ${message}`;
+                chatMessages.appendChild(newMessage);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+                chatInput.value = '';
+            }
+        }
+
         document.getElementById('dark-mode-toggle').addEventListener('click', toggleDarkMode);
         document.getElementById('sound-toggle').addEventListener('click', toggleSound);
         document.getElementById('music-toggle').addEventListener('click', toggleMusic);
@@ -964,7 +999,10 @@
         document.getElementById('timed-mode').addEventListener('click', () => switchMode('timed'));
         document.getElementById('survival-mode').addEventListener('click', () => switchMode('survival'));
         document.getElementById('puzzle-rush-mode').addEventListener('click', () => switchMode('puzzle-rush'));
-        document.getElementById('multiplayer-mode').addEventListener('click', () => switchMode('multiplayer'));
+        document.getElementById('multiplayer-mode').addEventListener('click', () => {
+            switchMode('multiplayer');
+            document.getElementById('chat-container').style.display = 'block';
+        });
         document.getElementById('daily-challenge-mode').addEventListener('click', () => switchMode('daily'));
         document.getElementById('settings-toggle').addEventListener('click', openSettings);
         document.getElementById('close-settings').addEventListener('click', () => {
@@ -977,6 +1015,7 @@
         document.getElementById('tutorial-toggle').addEventListener('click', displayTutorial);
         document.getElementById('help-toggle').addEventListener('click', toggleHelpSection);
         document.getElementById('next-step-button').addEventListener('click', nextTutorialStep);
+        document.getElementById('send-message').addEventListener('click', sendMessage);
         document.querySelectorAll('.help-topic').forEach(topic => {
             topic.addEventListener('click', () => showHelpTopic(topic.getAttribute('data-topic')));
         });
