@@ -106,14 +106,14 @@
             background-color: var(--button-hover-background);
         }
 
-        #dark-mode-toggle, #sound-toggle, #music-toggle, #settings-toggle {
+        #dark-mode-toggle, #sound-toggle, #music-toggle, #settings-toggle, #tutorial-toggle {
             background-color: #444;
             color: white;
             width: auto;
             margin-top: 10px;
         }
 
-        #dark-mode-toggle:hover, #sound-toggle:hover, #music-toggle:hover, #settings-toggle:hover {
+        #dark-mode-toggle:hover, #sound-toggle:hover, #music-toggle:hover, #settings-toggle:hover, #tutorial-toggle:hover {
             background-color: #555;
         }
 
@@ -244,26 +244,23 @@
             margin-right: 10px;
         }
 
-        #advanced-stats {
+        #tutorial {
+            display: none;
             margin-top: 20px;
             text-align: center;
-        }
-
-        #advanced-stats h2 {
-            margin-bottom: 10px;
-        }
-
-        #advanced-stats ul {
-            list-style-type: none;
-            padding: 0;
-        }
-
-        #advanced-stats li {
-            background-color: #e1e1e1;
-            margin-bottom: 5px;
-            padding: 5px;
+            background-color: #f9f9f9;
+            padding: 10px;
             border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
+
+        #tips {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 16px;
+            color: #888;
+        }
+
     </style>
 </head>
 <body data-theme="light">
@@ -299,6 +296,7 @@
                 <button id="sound-toggle">Toggle Sound</button>
                 <button id="music-toggle">Toggle Music</button>
                 <button id="settings-toggle">Settings</button>
+                <button id="tutorial-toggle">Show Tutorial</button>
                 <div id="feedback"></div>
                 <div id="score">Score: 0</div>
                 <div id="high-score">High Score: 0</div>
@@ -355,6 +353,22 @@
                         <li>Average Response Time: <span id="average-time">0s</span></li>
                     </ul>
                 </div>
+                <div id="tutorial">
+                    <h2>Game Tutorial</h2>
+                    <p>Welcome to the Math Puzzle Game! Follow these steps to get started:</p>
+                    <ol>
+                        <li>Select a game mode from the options above.</li>
+                        <li>Choose your difficulty level from the dropdown menu.</li>
+                        <li>Solve the puzzle displayed and enter your answer in the box.</li>
+                        <li>Click "Submit Answer" to check your answer.</li>
+                        <li>Use the "Get Hint" button if you need help, but it will cost you points!</li>
+                        <li>Keep an eye on the timer and try to score as high as possible.</li>
+                    </ol>
+                    <button id="close-tutorial">Close Tutorial</button>
+                </div>
+                <div id="tips">
+                    <!-- Tips will be displayed here -->
+                </div>
             </div>
         </div>
     </main>
@@ -399,14 +413,22 @@
         let dailyChallengeCompleted = JSON.parse(localStorage.getItem('dailyChallengeCompleted')) || false;
         let dailyChallengeDate = localStorage.getItem('dailyChallengeDate') || '';
         let gameHistory = JSON.parse(localStorage.getItem('gameHistory')) || [];
+        let tips = [
+            "Remember, practice makes perfect!",
+            "Use the hints wisely—they cost points!",
+            "Try different difficulty levels to challenge yourself.",
+            "Multiplayer mode is more fun with friends!",
+            "Keep track of your progress in the statistics section."
+        ];
+        let tutorialVisible = false;
 
         const achievementList = [
             { id: 1, name: 'Score 50 Points on Easy', achieved: false, difficulty: 'easy', check: () => score >= 50 && document.getElementById('difficulty').value === 'easy' },
-            { id: 2, name: 'High Streak of 10 on Easy', achieved: false, difficulty: 'easy', check: () => streak >= 10 && document.getElementById('difficulty').value === 'easy' },
-            { id: 3, name: 'Score 50 Points on Medium', achieved: false, difficulty: 'medium', check: () => score >= 50 && document.getElementById('difficulty').value === 'medium' },
-            { id: 4, name: 'High Streak of 10 on Medium', achieved: false, difficulty: 'medium', check: () => streak >= 10 && document.getElementById('difficulty').value === 'medium' },
-            { id: 5, name: 'Score 50 Points on Hard', achieved: false, difficulty: 'hard', check: () => score >= 50 && document.getElementById('difficulty').value === 'hard' },
-            { id: 6, name: 'High Streak of 10 on Hard', achieved: false, difficulty: 'hard', check: () => streak >= 10 && document.getElementById('difficulty').value === 'hard' },
+            { id: 2, name: 'High Streak of 10 on Easy', achieved: false, difficulty: 'easy', check: () => streak >= 10 and document.getElementById('difficulty').value === 'easy' },
+            { id: 3, name: 'Score 50 Points on Medium', achieved: false, difficulty: 'medium', check: () => score >= 50 and document.getElementById('difficulty').value === 'medium' },
+            { id: 4, name: 'High Streak of 10 on Medium', achieved: false, difficulty: 'medium', check: () => streak >= 10 and document.getElementById('difficulty').value === 'medium' },
+            { id: 5, name: 'Score 50 Points on Hard', achieved: false, difficulty: 'hard', check: () => score >= 50 and document.getElementById('difficulty').value === 'hard' },
+            { id: 6, name: 'High Streak of 10 on Hard', achieved: false, difficulty: 'hard', check: () => streak >= 10 and document.getElementById('difficulty').value === 'hard' },
             { id: 7, name: 'Finish a Game Without Hints on Any Difficulty', achieved: false, check: () => streak > 0 and score > 0 and !hintUsedThisGame },
             { id: 8, name: 'Score 100 Points in Timed Challenges', achieved: false, check: () => score >= 100 and mode === 'timed' },
             { id: 9, name: 'Solve 10 Puzzles in Timed Challenges', achieved: false, check: () => streak >= 10 and mode === 'timed' }
@@ -670,6 +692,7 @@
             clearInterval(timerInterval);
             startTimer();
             generatePuzzle();
+            displayRandomTip();
         }
 
         function updateLeaderboard() {
@@ -714,7 +737,7 @@
 
         function checkAchievements() {
             achievementList.forEach(achievement => {
-                if (!achievement.achieved && achievement.check()) {
+                if (!achievement.achieved and achievement.check()) {
                     achievement.achieved = true;
                     achievements.push(achievement);
                     localStorage.setItem('achievements', JSON.stringify(achievements));
@@ -725,7 +748,7 @@
 
         function checkDailyAchievements() {
             dailyAchievementList.forEach(achievement => {
-                if (!achievement.achieved && achievement.check()) {
+                if (!achievement.achieved and achievement.check()) {
                     achievement.achieved = true;
                     dailyAchievements.push(achievement);
                     localStorage.setItem('dailyAchievements', JSON.stringify(dailyAchievements));
@@ -890,6 +913,17 @@
             });
         }
 
+        function displayTutorial() {
+            const tutorialElement = document.getElementById('tutorial');
+            tutorialVisible = !tutorialVisible;
+            tutorialElement.style.display = tutorialVisible ? 'block' : 'none';
+        }
+
+        function displayRandomTip() {
+            const randomTip = tips[Math.floor(Math.random() * tips.length)];
+            document.getElementById('tips').textContent = `Tip: ${randomTip}`;
+        }
+
         document.getElementById('dark-mode-toggle').addEventListener('click', toggleDarkMode);
         document.getElementById('sound-toggle').addEventListener('click', toggleSound);
         document.getElementById('music-toggle').addEventListener('click', toggleMusic);
@@ -910,6 +944,8 @@
         document.getElementById('theme').addEventListener('change', applyTheme);
         document.getElementById('large-text').addEventListener('change', applyAccessibilityOptions);
         document.getElementById('high-contrast-mode').addEventListener('change', applyAccessibilityOptions);
+        document.getElementById('tutorial-toggle').addEventListener('click', displayTutorial);
+        document.getElementById('close-tutorial').addEventListener('click', displayTutorial);
 
         // Initialize the game on page load
         window.onload = () => {
