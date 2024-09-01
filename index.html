@@ -7,7 +7,7 @@
     <style>
         /* Previous styles omitted for brevity */
 
-        #challenge-levels-container {
+        #help-section {
             margin-top: 20px;
             background-color: #f9f9f9;
             border-radius: 5px;
@@ -17,23 +17,56 @@
             display: none;
         }
 
-        #challenge-levels {
-            height: 150px;
+        #help-contents {
+            height: 300px;
             overflow-y: auto;
-            border-bottom: 1px solid #ddd;
             margin-bottom: 10px;
         }
 
-        .challenge-item {
-            margin-bottom: 5px;
-            padding: 5px;
-            background-color: #fff;
+        #tutorial-container {
+            margin-top: 20px;
+            background-color: #f9f9f9;
             border-radius: 5px;
-            cursor: pointer;
+            padding: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 350px;
+            display: none;
         }
 
-        .challenge-item:hover {
+        #tutorial-steps {
+            height: 300px;
+            overflow-y: auto;
+            margin-bottom: 10px;
+        }
+
+        .tutorial-step {
+            margin-bottom: 10px;
+        }
+
+        #next-step-button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        #next-step-button:hover {
+            background-color: #45a049;
+        }
+
+        .help-topic {
+            cursor: pointer;
+            padding: 5px;
+            margin: 5px 0;
             background-color: #e0e0e0;
+            border-radius: 5px;
+        }
+
+        .help-topic:hover {
+            background-color: #ccc;
         }
 
     </style>
@@ -75,6 +108,7 @@
                 <button id="music-toggle">Toggle Music</button>
                 <button id="settings-toggle">Settings</button>
                 <button id="tutorial-toggle">Show Tutorial</button>
+                <button id="help-toggle">Help</button>
                 <div id="feedback"></div>
                 <div id="score">Score: 0</div>
                 <div id="high-score">High Score: 0</div>
@@ -106,6 +140,25 @@
                     <h3>Challenge Levels</h3>
                     <div id="challenge-levels">
                         <!-- Unlocked challenge levels will be listed here -->
+                    </div>
+                </div>
+                <div id="tutorial-container">
+                    <h3>Interactive Tutorial</h3>
+                    <div id="tutorial-steps">
+                        <!-- Tutorial steps will be shown here -->
+                    </div>
+                    <button id="next-step-button">Next Step</button>
+                </div>
+                <div id="help-section">
+                    <h3>Help & Instructions</h3>
+                    <div id="help-contents">
+                        <div class="help-topic" data-topic="game-modes">Game Modes</div>
+                        <div class="help-topic" data-topic="controls">Game Controls</div>
+                        <div class="help-topic" data-topic="difficulty">Difficulty Levels</div>
+                        <div class="help-topic" data-topic="power-ups">Power-Ups</div>
+                        <div class="help-topic" data-topic="achievements">Achievements</div>
+                        <div class="help-topic" data-topic="leaderboards">Leaderboards</div>
+                        <div class="help-topic" data-topic="settings">Game Settings</div>
                     </div>
                 </div>
                 <div id="settings-menu">
@@ -233,6 +286,16 @@
         let puzzleHistory = [];
         let selectedPuzzle = null;
         let challengeLevels = [];
+        let tutorialSteps = [
+            "Step 1: Welcome to the Math Puzzle Game! Select a game mode to begin.",
+            "Step 2: Choose your difficulty level from the dropdown menu.",
+            "Step 3: Solve the puzzle displayed and enter your answer in the box.",
+            "Step 4: Click 'Submit Answer' to check your answer.",
+            "Step 5: Use the 'Get Hint' button if you need help, but it will cost you points!",
+            "Step 6: Keep an eye on the timer and try to score as high as possible.",
+            "Step 7: Explore different game modes and try to unlock all achievements!"
+        ];
+        let tutorialIndex = 0;
         let tutorialVisible = false;
 
         const achievementList = [
@@ -342,17 +405,6 @@
 
             // Add puzzle to history
             addToPuzzleHistory(currentPuzzle);
-        }
-
-        function adaptiveDifficultyBasedOnPerformance() {
-            const accuracy = correctAnswers > 0 ? (correctAnswers / totalPuzzles) * 100 : 0;
-            if (accuracy > 80 && streak >= 5) {
-                return { min: 50, max: 100 }; // Make it harder
-            } else if (accuracy > 50) {
-                return { min: 10, max: 50 }; // Medium challenge
-            } else {
-                return { min: 1, max: 10 }; // Easy challenge
-            }
         }
 
         function provideHint() {
@@ -859,36 +911,45 @@
         }
 
         function displayTutorial() {
-            const tutorialElement = document.getElementById('tutorial');
+            const tutorialContainer = document.getElementById('tutorial-container');
+            const tutorialStepsContainer = document.getElementById('tutorial-steps');
             tutorialVisible = !tutorialVisible;
-            tutorialElement.style.display = tutorialVisible ? 'block' : 'none';
+            tutorialContainer.style.display = tutorialVisible ? 'block' : 'none';
+
+            if (tutorialVisible) {
+                tutorialStepsContainer.innerHTML = `<div class="tutorial-step">${tutorialSteps[tutorialIndex]}</div>`;
+            }
         }
 
-        function displayRandomTip() {
-            const randomTip = tips[Math.floor(Math.random() * tips.length)];
-            document.getElementById('tips').textContent = `Tip: ${randomTip}`;
+        function nextTutorialStep() {
+            tutorialIndex++;
+            if (tutorialIndex < tutorialSteps.length) {
+                const tutorialStepsContainer = document.getElementById('tutorial-steps');
+                tutorialStepsContainer.innerHTML = `<div class="tutorial-step">${tutorialSteps[tutorialIndex]}</div>`;
+            } else {
+                tutorialIndex = 0;
+                displayTutorial();
+            }
         }
 
-        function displayEndSummary() {
-            document.getElementById('final-score').textContent = score;
-            document.getElementById('summary-high-score').textContent = highScore;
-            document.getElementById('summary-correct-answers').textContent = correctAnswers;
-            document.getElementById('summary-incorrect-answers').textContent = incorrectAnswers;
-            document.getElementById('summary-accuracy').textContent = `${((correctAnswers / totalPuzzles) * 100).toFixed(2)}%`;
-            document.getElementById('summary-average-time').textContent = `${(totalResponseTime / totalPuzzles).toFixed(2)}s`;
-            document.getElementById('summary-achievements').textContent = achievements.filter(a => a.achieved).length;
-            document.getElementById('end-summary').style.display = 'block';
+        function toggleHelpSection() {
+            const helpSection = document.getElementById('help-section');
+            helpSection.style.display = helpSection.style.display === 'block' ? 'none' : 'block';
         }
 
-        function shareOnTwitter() {
-            const text = `I scored ${score} in the Math Puzzle Game! Can you beat my score?`;
-            const url = encodeURIComponent(window.location.href);
-            window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank');
-        }
+        function showHelpTopic(topic) {
+            const helpContent = {
+                'game-modes': 'Learn about different game modes like Classic, Timed, Survival, Puzzle Rush, and Multiplayer.',
+                'controls': 'Understand how to use game controls including submitting answers, using hints, and resetting the game.',
+                'difficulty': 'Learn about the different difficulty levels and how they affect gameplay.',
+                'power-ups': 'Discover various power-ups like Double Points, Freeze Opponent, and Extra Time.',
+                'achievements': 'Find out how to unlock different achievements and track your progress.',
+                'leaderboards': 'Learn about the leaderboard system and how to rank among the best players.',
+                'settings': 'Explore game settings including theme selection, sound, and accessibility options.'
+            };
 
-        function shareOnFacebook() {
-            const url = encodeURIComponent(window.location.href);
-            window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank');
+            const helpContents = document.getElementById('help-contents');
+            helpContents.innerHTML = `<div>${helpContent[topic]}</div>`;
         }
 
         document.getElementById('dark-mode-toggle').addEventListener('click', toggleDarkMode);
@@ -914,9 +975,11 @@
         document.getElementById('large-text').addEventListener('change', applyAccessibilityOptions);
         document.getElementById('high-contrast-mode').addEventListener('change', applyAccessibilityOptions);
         document.getElementById('tutorial-toggle').addEventListener('click', displayTutorial);
-        document.getElementById('close-tutorial').addEventListener('click', displayTutorial);
-        document.getElementById('share-twitter').addEventListener('click', shareOnTwitter);
-        document.getElementById('share-facebook').addEventListener('click', shareOnFacebook);
+        document.getElementById('help-toggle').addEventListener('click', toggleHelpSection);
+        document.getElementById('next-step-button').addEventListener('click', nextTutorialStep);
+        document.querySelectorAll('.help-topic').forEach(topic => {
+            topic.addEventListener('click', () => showHelpTopic(topic.getAttribute('data-topic')));
+        });
 
         // Initialize the game on page load
         window.onload = () => {
